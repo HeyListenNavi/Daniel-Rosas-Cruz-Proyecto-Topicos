@@ -17,8 +17,8 @@ namespace Daniel_Rosas_Cruz
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            string dbPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tasks.db");
-            var db = new AccesoDatos(dbPath);
+            string connectionString = @"Server=localhost\SQLEXPRESS01;Database=TaskAppDB;Integrated Security=True;";
+            var db = new AccesoDatos(connectionString);
 
             using (var login = new UI.LoginForm(db))
             {

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
-using Microsoft.Data.Sqlite;
+using System.Data.SqlClient;
 
 namespace Daniel_Rosas_Cruz
 {
@@ -15,122 +15,130 @@ namespace Daniel_Rosas_Cruz
 
     public class AccesoDatos
     {
-        private readonly string _connectionString;
+        private string _connectionString;
         private readonly object _dbLock = new object();
 
-        public AccesoDatos(string dbPath)
+        public AccesoDatos(string connectionString)
         {
-            _connectionString = $"Data Source={dbPath};";
-            InicializarTablas(dbPath);
+            _connectionString = connectionString;
+            CrearBaseDeDatosSiNoExiste();
+            InicializarTablas();
         }
 
-        private void InicializarTablas(string dbPath)
+        private void CrearBaseDeDatosSiNoExiste()
+        {
+            var builder = new SqlConnectionStringBuilder(_connectionString);
+            string databaseName = builder.InitialCatalog;
+            builder.InitialCatalog = "master";
+
+            using (var connection = new SqlConnection(builder.ConnectionString))
+            {
+                connection.Open();
+                string query = $@"
+                    IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '{databaseName}')
+                    BEGIN
+                        CREATE DATABASE [{databaseName}]
+                    END";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void InicializarTablas()
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
 
                     string sqlBase = @"
-                        CREATE TABLE IF NOT EXISTS Users (
-                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                            Name TEXT NOT NULL UNIQUE, 
-                            Password TEXT NOT NULL DEFAULT '1234'
-                        );
-                        CREATE TABLE IF NOT EXISTS Categories (
-                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                            Name TEXT NOT NULL, 
-                            UserId INTEGER,
-                            FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
-                        );
-                        CREATE TABLE IF NOT EXISTS Tasks (
-                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                            Name TEXT NOT NULL, 
-                            FilePath TEXT NOT NULL, 
-                            ExecuteAt DATETIME NOT NULL, 
-                            Status INTEGER NOT NULL DEFAULT 0, 
-                            LogMessage TEXT DEFAULT '', 
-                            CategoryId INTEGER, 
-                            UserId INTEGER, 
-                            FOREIGN KEY (CategoryId) REFERENCES Categories(Id) ON DELETE SET NULL, 
-                            FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
-                        );
-                        CREATE TABLE IF NOT EXISTS TaskHistory (
-                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                            TaskId INTEGER NOT NULL, 
-                            ExecutedAt DATETIME NOT NULL, 
-                            Status INTEGER NOT NULL, 
-                            LogMessage TEXT DEFAULT '', 
-                            FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE
-                        );";
+                        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Users]') AND type in (N'U'))
+                        BEGIN
+                            CREATE TABLE [dbo].[Users] (
+                                Id INT IDENTITY(1,1) PRIMARY KEY, 
+                                Name NVARCHAR(100) NOT NULL UNIQUE, 
+                                Password NVARCHAR(100) NOT NULL DEFAULT '1234'
+                            )
+                        END;
 
-                    using (var command = new SqliteCommand(sqlBase, connection)) command.ExecuteNonQuery();
+                        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Categories]') AND type in (N'U'))
+                        BEGIN
+                            CREATE TABLE [dbo].[Categories] (
+                                Id INT IDENTITY(1,1) PRIMARY KEY, 
+                                Name NVARCHAR(100) NOT NULL, 
+                                UserId INT,
+                                CONSTRAINT FK_Categories_Users FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+                            )
+                        END;
 
-                    try
-                    {
-                        bool migrado = false;
-                        using (var cmdCheck = new SqliteCommand("SELECT sql FROM sqlite_master WHERE name='Categories' AND sql LIKE '%UNIQUE%'", connection))
-                        {
-                            var result = cmdCheck.ExecuteScalar();
-                            migrado = result != null && result.ToString().Contains("UNIQUE");
-                        }
+                        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Tasks]') AND type in (N'U'))
+                        BEGIN
+                            CREATE TABLE [dbo].[Tasks] (
+                                Id INT IDENTITY(1,1) PRIMARY KEY, 
+                                Name NVARCHAR(100) NOT NULL, 
+                                FilePath NVARCHAR(MAX) NOT NULL, 
+                                ExecuteAt DATETIME NOT NULL, 
+                                Status INT NOT NULL DEFAULT 0, 
+                                LogMessage NVARCHAR(MAX) DEFAULT '', 
+                                CategoryId INT, 
+                                UserId INT, 
+                                CONSTRAINT FK_Tasks_Categories FOREIGN KEY (CategoryId) REFERENCES Categories(Id) ON DELETE SET NULL, 
+                                CONSTRAINT FK_Tasks_Users FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE NO ACTION
+                            )
+                        END;
 
-                        if (!migrado)
-                        {
-                            string migrateSql = @"
-                                CREATE TABLE IF NOT EXISTS Categories_temp (
-                                    Id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                    Name TEXT NOT NULL, 
-                                    UserId INTEGER, 
-                                    UNIQUE(Name, UserId)
-                                );
-                                INSERT OR IGNORE INTO Categories_temp (Id, Name, UserId) SELECT Id, Name, UserId FROM Categories;
-                                DROP TABLE IF EXISTS Categories;
-                                ALTER TABLE Categories_temp RENAME TO Categories;";
-                            
-                            using (var transaction = connection.BeginTransaction())
-                            {
-                                try {
-                                    using (var cmd = new SqliteCommand(migrateSql, connection, transaction)) cmd.ExecuteNonQuery();
-                                    transaction.Commit();
-                                } catch { transaction.Rollback(); }
-                            }
-                        }
-                    }
-                    catch { }
+                        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TaskHistory]') AND type in (N'U'))
+                        BEGIN
+                            CREATE TABLE [dbo].[TaskHistory] (
+                                Id INT IDENTITY(1,1) PRIMARY KEY, 
+                                TaskId INT NOT NULL, 
+                                ExecutedAt DATETIME NOT NULL, 
+                                Status INT NOT NULL, 
+                                LogMessage NVARCHAR(MAX) DEFAULT '', 
+                                CONSTRAINT FK_TaskHistory_Tasks FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE
+                            )
+                        END;";
 
-                    try { using (var cmd = new SqliteCommand("ALTER TABLE Users ADD COLUMN Password TEXT NOT NULL DEFAULT '1234'", connection)) cmd.ExecuteNonQuery(); } catch { }
-                    try { using (var cmd = new SqliteCommand("ALTER TABLE Tasks ADD COLUMN UserId INTEGER", connection)) cmd.ExecuteNonQuery(); } catch { }
-                    try { using (var cmd = new SqliteCommand("ALTER TABLE Tasks ADD COLUMN LogMessage TEXT DEFAULT ''", connection)) cmd.ExecuteNonQuery(); } catch { }
+                    using (var command = new SqlCommand(sqlBase, connection)) command.ExecuteNonQuery();
 
-                    string fixOrphans = "UPDATE Tasks SET UserId = (SELECT Id FROM Users ORDER BY Id ASC LIMIT 1) WHERE UserId IS NULL AND (SELECT COUNT(*) FROM Users) > 0";
-                    using (var cmd = new SqliteCommand(fixOrphans, connection)) cmd.ExecuteNonQuery();
+                    string fixOrphans = "UPDATE Tasks SET UserId = (SELECT TOP 1 Id FROM Users ORDER BY Id ASC) WHERE UserId IS NULL AND (SELECT COUNT(*) FROM Users) > 0";
+                    using (var cmd = new SqlCommand(fixOrphans, connection)) cmd.ExecuteNonQuery();
 
                     CargarDatosIniciales(connection);
                 }
             }
         }
 
-        private void CargarDatosIniciales(SqliteConnection connection)
+        private void CargarDatosIniciales(SqlConnection connection)
         {
             string checkUsers = "SELECT COUNT(*) FROM Users";
-            using (var command = new SqliteCommand(checkUsers, connection))
+            using (var command = new SqlCommand(checkUsers, connection))
             {
                 if (Convert.ToInt32(command.ExecuteScalar()) == 0)
                 {
                     string seed = "INSERT INTO Users (Name, Password) VALUES ('Administrador', 'admin'), ('Invitado', '1234')";
-                    using (var seedCmd = new SqliteCommand(seed, connection)) seedCmd.ExecuteNonQuery();
+                    using (var seedCmd = new SqlCommand(seed, connection)) seedCmd.ExecuteNonQuery();
                 }
             }
 
             string checkCats = "SELECT COUNT(*) FROM Categories WHERE UserId IS NULL";
-            using (var command = new SqliteCommand(checkCats, connection))
+            using (var command = new SqlCommand(checkCats, connection))
             {
                 if (Convert.ToInt32(command.ExecuteScalar()) == 0)
                 {
-                    string seed = "INSERT OR IGNORE INTO Categories (Name, UserId) VALUES ('General', NULL), ('Sistema', NULL), ('Trabajo', NULL), ('Personal', NULL)";
-                    using (var seedCmd = new SqliteCommand(seed, connection)) seedCmd.ExecuteNonQuery();
+                    string seed = @"
+                        IF NOT EXISTS (SELECT 1 FROM Categories WHERE Name = 'General' AND UserId IS NULL)
+                            INSERT INTO Categories (Name, UserId) VALUES ('General', NULL);
+                        IF NOT EXISTS (SELECT 1 FROM Categories WHERE Name = 'Sistema' AND UserId IS NULL)
+                            INSERT INTO Categories (Name, UserId) VALUES ('Sistema', NULL);
+                        IF NOT EXISTS (SELECT 1 FROM Categories WHERE Name = 'Trabajo' AND UserId IS NULL)
+                            INSERT INTO Categories (Name, UserId) VALUES ('Trabajo', NULL);
+                        IF NOT EXISTS (SELECT 1 FROM Categories WHERE Name = 'Personal' AND UserId IS NULL)
+                            INSERT INTO Categories (Name, UserId) VALUES ('Personal', NULL);";
+                    using (var seedCmd = new SqlCommand(seed, connection)) seedCmd.ExecuteNonQuery();
                 }
             }
         }
@@ -139,11 +147,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "SELECT * FROM Users WHERE Name = @Name AND Password = @Pass";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", username);
                         command.Parameters.AddWithValue("@Pass", password);
@@ -164,11 +172,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "INSERT INTO Users (Name, Password) VALUES (@Name, @Pass)";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", username);
                         command.Parameters.AddWithValue("@Pass", password);
@@ -183,11 +191,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "UPDATE Users SET Name = @Name, Password = @Pass WHERE Id = @Id";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", newName);
                         command.Parameters.AddWithValue("@Pass", newPass);
@@ -202,11 +210,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "DELETE FROM Users WHERE Id = @Id";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Id", userId);
                         command.ExecuteNonQuery();
@@ -219,11 +227,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "SELECT Id, Name, UserId FROM Categories WHERE UserId IS NULL OR UserId = @UserId";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@UserId", userId);
                         using (var reader = command.ExecuteReader())
@@ -243,11 +251,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "INSERT INTO Categories (Name, UserId) VALUES (@Name, @UserId)";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", nombre);
                         command.Parameters.AddWithValue("@UserId", userId);
@@ -261,11 +269,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "UPDATE Categories SET Name = @Name WHERE Id = @Id";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", nombre);
                         command.Parameters.AddWithValue("@Id", id);
@@ -279,11 +287,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "DELETE FROM Categories WHERE Id = @Id";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Id", id);
                         command.ExecuteNonQuery();
@@ -296,11 +304,11 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = @"INSERT INTO Tasks (Name, FilePath, ExecuteAt, Status, LogMessage, CategoryId, UserId) VALUES (@Name, @FilePath, @ExecuteAt, @Status, '', @CategoryId, @UserId)";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", nombre);
                         command.Parameters.AddWithValue("@FilePath", ruta);
@@ -318,7 +326,7 @@ namespace Daniel_Rosas_Cruz
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = @"
@@ -328,7 +336,7 @@ FROM Tasks t
 LEFT JOIN Categories c ON t.CategoryId = c.Id
 LEFT JOIN Users u ON t.UserId = u.Id
 WHERE t.UserId = @UserId";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@UserId", userId);
                         using (var reader = command.ExecuteReader())
@@ -348,11 +356,11 @@ WHERE t.UserId = @UserId";
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "SELECT * FROM Tasks WHERE Status = 0";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         using (var reader = command.ExecuteReader())
                         {
@@ -371,11 +379,11 @@ WHERE t.UserId = @UserId";
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "UPDATE Tasks SET Name = @Name, FilePath = @FilePath, ExecuteAt = @ExecuteAt, CategoryId = @CategoryId WHERE Id = @Id";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", nombre);
                         command.Parameters.AddWithValue("@FilePath", ruta);
@@ -392,11 +400,11 @@ WHERE t.UserId = @UserId";
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "DELETE FROM Tasks WHERE Id = @Id";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Id", id);
                         command.ExecuteNonQuery();
@@ -409,11 +417,11 @@ WHERE t.UserId = @UserId";
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
                     string query = "UPDATE Tasks SET Status = @Status, LogMessage = @Log WHERE Id = @Id";
-                    using (var command = new SqliteCommand(query, connection))
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Status", estado);
                         command.Parameters.AddWithValue("@Log", log);
@@ -422,7 +430,7 @@ WHERE t.UserId = @UserId";
                     }
                     
                     string hist = "INSERT INTO TaskHistory (TaskId, ExecutedAt, Status, LogMessage) VALUES (@TaskId, @Date, @Status, @Log)";
-                    using (var cmd = new SqliteCommand(hist, connection))
+                    using (var cmd = new SqlCommand(hist, connection))
                     {
                         cmd.Parameters.AddWithValue("@TaskId", id);
                         cmd.Parameters.AddWithValue("@Date", DateTime.Now);
@@ -438,11 +446,11 @@ WHERE t.UserId = @UserId";
         {
             lock (_dbLock)
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = @"SELECT h.*, t.Name as TaskName FROM TaskHistory h JOIN Tasks t ON h.TaskId = t.Id WHERE t.UserId = @UserId ORDER BY h.ExecutedAt DESC LIMIT 100";
-                    using (var command = new SqliteCommand(query, connection))
+                    string query = @"SELECT TOP 100 h.*, t.Name as TaskName FROM TaskHistory h JOIN Tasks t ON h.TaskId = t.Id WHERE t.UserId = @UserId ORDER BY h.ExecutedAt DESC";
+                    using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@UserId", userId);
                         using (var reader = command.ExecuteReader())

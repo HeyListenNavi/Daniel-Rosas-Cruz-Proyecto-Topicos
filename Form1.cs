@@ -251,5 +251,15 @@ namespace Daniel_Rosas_Cruz
         private void _pnlTasks_Paint(object sender, PaintEventArgs e)
         {
         }
+
+        private void pnlInput_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
