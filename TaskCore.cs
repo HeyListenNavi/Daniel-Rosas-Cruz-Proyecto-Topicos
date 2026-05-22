@@ -32,34 +32,62 @@ namespace Daniel_Rosas_Cruz
                 {
                     connection.Open();
 
-                    string createUsersTable = @"CREATE TABLE IF NOT EXISTS Users (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL UNIQUE, Password TEXT NOT NULL)";
-                    string createCategoriesTable = @"CREATE TABLE IF NOT EXISTS Categories (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, UserId INTEGER, FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE)";
-                    string createTasksTable = @"CREATE TABLE IF NOT EXISTS Tasks (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, FilePath TEXT NOT NULL, ExecuteAt DATETIME NOT NULL, Status INTEGER NOT NULL, LogMessage TEXT, CategoryId INTEGER, UserId INTEGER NOT NULL, FOREIGN KEY (CategoryId) REFERENCES Categories(Id) ON DELETE SET NULL, FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE)";
-                    string createHistoryTable = @"CREATE TABLE IF NOT EXISTS TaskHistory (Id INTEGER PRIMARY KEY AUTOINCREMENT, TaskId INTEGER NOT NULL, ExecutedAt DATETIME NOT NULL, Status INTEGER NOT NULL, LogMessage TEXT, FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE)";
+                    string sqlBase = @"
+                        CREATE TABLE IF NOT EXISTS Users (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                            Name TEXT NOT NULL UNIQUE, 
+                            Password TEXT NOT NULL
+                        );
+                        CREATE TABLE IF NOT EXISTS Categories (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                            Name TEXT NOT NULL, 
+                            UserId INTEGER,
+                            FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+                        );
+                        CREATE TABLE IF NOT EXISTS Tasks (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                            Name TEXT NOT NULL, 
+                            FilePath TEXT NOT NULL, 
+                            ExecuteAt DATETIME NOT NULL, 
+                            Status INTEGER NOT NULL, 
+                            LogMessage TEXT, 
+                            CategoryId INTEGER, 
+                            UserId INTEGER NOT NULL, 
+                            FOREIGN KEY (CategoryId) REFERENCES Categories(Id) ON DELETE SET NULL, 
+                            FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+                        );
+                        CREATE TABLE IF NOT EXISTS TaskHistory (
+                            Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                            TaskId INTEGER NOT NULL, 
+                            ExecutedAt DATETIME NOT NULL, 
+                            Status INTEGER NOT NULL, 
+                            LogMessage TEXT, 
+                            FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE
+                        );";
 
-                    using (var command = new SqliteCommand(createUsersTable, connection)) command.ExecuteNonQuery();
-                    using (var command = new SqliteCommand(createTasksTable, connection)) command.ExecuteNonQuery();
-                    using (var command = new SqliteCommand(createHistoryTable, connection)) command.ExecuteNonQuery();
+                    using (var command = new SqliteCommand(sqlBase, connection)) command.ExecuteNonQuery();
 
-                    // Migración robusta para Categorías
-                    bool needsCatMigration = false;
-                    using (var cmd = new SqliteCommand("PRAGMA table_info(Categories)", connection))
+                    bool tieneUniqueNuevo = false;
+                    using (var cmd = new SqliteCommand("SELECT sql FROM sqlite_master WHERE type='table' AND name='Categories'", connection))
                     {
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            bool hasUserId = false;
-                            while (reader.Read()) { if (reader["name"].ToString() == "UserId") hasUserId = true; }
-                            if (!hasUserId) needsCatMigration = true;
-                        }
+                        var sqlObj = cmd.ExecuteScalar();
+                        if (sqlObj != null && sqlObj.ToString().Contains("UNIQUE")) tieneUniqueNuevo = true;
                     }
 
-                    if (needsCatMigration)
+                    if (!tieneUniqueNuevo)
                     {
                         string migrateSql = @"
-                            CREATE TABLE IF NOT EXISTS Categories_new (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, UserId INTEGER, FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE, UNIQUE(Name, UserId));
-                            INSERT OR IGNORE INTO Categories_new (Id, Name) SELECT Id, Name FROM Categories;
+                            CREATE TABLE IF NOT EXISTS Categories_new (
+                                Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                Name TEXT NOT NULL, 
+                                UserId INTEGER, 
+                                FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE, 
+                                UNIQUE(Name, UserId)
+                            );
+                            INSERT OR IGNORE INTO Categories_new (Id, Name, UserId) SELECT Id, Name, UserId FROM Categories;
                             DROP TABLE IF EXISTS Categories;
                             ALTER TABLE Categories_new RENAME TO Categories;";
+                        
                         using (var transaction = connection.BeginTransaction())
                         {
                             try {
@@ -67,10 +95,6 @@ namespace Daniel_Rosas_Cruz
                                 transaction.Commit();
                             } catch { transaction.Rollback(); }
                         }
-                    }
-                    else
-                    {
-                        using (var command = new SqliteCommand(createCategoriesTable, connection)) command.ExecuteNonQuery();
                     }
 
                     try { using (var cmd = new SqliteCommand("ALTER TABLE Users ADD COLUMN Password TEXT DEFAULT '1234'", connection)) cmd.ExecuteNonQuery(); } catch { }
