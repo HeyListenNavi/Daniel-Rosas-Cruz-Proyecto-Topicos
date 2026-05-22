@@ -19,7 +19,15 @@ namespace Daniel_Rosas_Cruz
 
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this._tmrExecution = new System.Windows.Forms.Timer(this.components);
             this._pnlTasks = new System.Windows.Forms.FlowLayoutPanel();
+            // ... (rest of controls)
+            // 
+            // _tmrExecution
+            // 
+            this._tmrExecution.Interval = 10000;
+            this._tmrExecution.Tick += new System.EventHandler(this._tmrExecution_Tick);
             this.pnlInput = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.lblName = new System.Windows.Forms.Label();
@@ -360,5 +368,6 @@ namespace Daniel_Rosas_Cruz
         private System.Windows.Forms.ComboBox _cmbCategory;
         private System.Windows.Forms.Label lblUser;
         private System.Windows.Forms.ComboBox _cmbUser;
+        private System.Windows.Forms.Timer _tmrExecution;
     }
 }

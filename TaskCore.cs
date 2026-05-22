@@ -472,65 +472,74 @@ WHERE t.UserId = @UserId";
     public class ProcesadorTareas
     {
         private readonly AccesoDatos _db;
-        private readonly ConcurrentDictionary<int, CancellationTokenSource> _tareasVivas;
+        private readonly ConcurrentDictionary<int, System.Timers.Timer> _timers;
         public event Action<DataRow> AlCambiarEstado;
 
         public ProcesadorTareas(AccesoDatos db)
         {
             _db = db;
-            _tareasVivas = new ConcurrentDictionary<int, CancellationTokenSource>();
+            _timers = new ConcurrentDictionary<int, System.Timers.Timer>();
         }
 
         public void Iniciar()
         {
             DataTable pendientes = _db.ListarPendientes();
-            foreach (DataRow fila in pendientes.Rows) Programar(fila);
+            foreach (DataRow fila in pendientes.Rows)
+            {
+                Programar(fila);
+            }
         }
 
         public void Programar(DataRow filaTarea)
         {
             int id = Convert.ToInt32(filaTarea["Id"]);
-            if (_tareasVivas.TryGetValue(id, out var viejoCts))
-            {
-                viejoCts.Cancel();
-                viejoCts.Dispose();
-                _tareasVivas.TryRemove(id, out _);
-            }
-
-            var cts = new CancellationTokenSource();
-            _tareasVivas.TryAdd(id, cts);
+            Cancelar(id); // Limpiar si ya existe
 
             DateTime ejecutaEn = Convert.ToDateTime(filaTarea["ExecuteAt"]);
-            TimeSpan espera = ejecutaEn - DateTime.Now;
-            if (espera.TotalMilliseconds <= 0) espera = TimeSpan.Zero;
+            double ms = (ejecutaEn - DateTime.Now).TotalMilliseconds;
 
-            var token = cts.Token;
-            Task.Run(async () =>
+            if (ms <= 0)
             {
-                try {
-                    if (espera > TimeSpan.Zero) await Task.Delay(espera, token);
-                    if (token.IsCancellationRequested) return;
-                    EjecutarArchivo(filaTarea);
-                }
-                catch (TaskCanceledException) { }
-                catch (Exception ex) { ActualizarEnBD(filaTarea, 3, ex.Message); }
-                finally { _tareasVivas.TryRemove(id, out _); }
-            }, token);
+                Task.Run(() => EjecutarArchivo(filaTarea));
+                return;
+            }
+
+            var timer = new System.Timers.Timer(ms);
+            timer.AutoReset = false;
+            timer.Elapsed += (s, e) =>
+            {
+                _timers.TryRemove(id, out _);
+                EjecutarArchivo(filaTarea);
+                timer.Dispose();
+            };
+            _timers.TryAdd(id, timer);
+            timer.Start();
         }
 
         public void Cancelar(int id)
         {
-            if (_tareasVivas.TryGetValue(id, out var cts)) cts.Cancel();
+            if (_timers.TryRemove(id, out var timer))
+            {
+                timer.Stop();
+                timer.Dispose();
+            }
         }
 
         private void EjecutarArchivo(DataRow fila)
         {
-            ActualizarEnBD(fila, 1, "Iniciando...");
+            int id = Convert.ToInt32(fila["Id"]);
+            _db.CambiarEstado(id, 1, "Iniciando...");
+            
             try {
                 ProcessStartInfo info = new ProcessStartInfo { FileName = fila["FilePath"].ToString(), UseShellExecute = true };
-                using (Process p = Process.Start(info)) ActualizarEnBD(fila, 2, "OK");
+                using (Process p = Process.Start(info))
+                {
+                    ActualizarEnBD(fila, 2, "OK");
+                }
             }
-            catch (Exception ex) { ActualizarEnBD(fila, 3, "Error: " + ex.Message); }
+            catch (Exception ex) { 
+                ActualizarEnBD(fila, 3, "Error: " + ex.Message); 
+            }
         }
 
         private void ActualizarEnBD(DataRow fila, int nuevoEstado, string mensaje)
@@ -538,7 +547,7 @@ WHERE t.UserId = @UserId";
             int id = Convert.ToInt32(fila["Id"]);
             _db.CambiarEstado(id, nuevoEstado, mensaje);
             
-            // Refrescar fila para el evento
+            // Refrescar fila para el evento UI
             fila["Status"] = nuevoEstado;
             fila["LogMessage"] = mensaje;
             AlCambiarEstado?.Invoke(fila);

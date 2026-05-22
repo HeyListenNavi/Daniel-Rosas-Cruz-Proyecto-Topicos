@@ -42,7 +42,8 @@ namespace Daniel_Rosas_Cruz
             _engine = new ProcesadorTareas(_db);
             
             _engine.AlCambiarEstado += Engine_OnTaskStatusChanged;
-            _engine.Iniciar();
+            // No iniciamos el motor independiente
+            // _engine.Iniciar(); 
 
             lblUser.Visible = false;
             _cmbUser.Visible = false;
@@ -51,6 +52,22 @@ namespace Daniel_Rosas_Cruz
 
             LoadCategories();
             LoadTasks();
+
+            _tmrExecution.Start(); // Iniciamos el timer del Form
+        }
+
+        private void _tmrExecution_Tick(object sender, EventArgs e)
+        {
+            DataTable pendientes = _db.ListarPendientes();
+            foreach (DataRow fila in pendientes.Rows)
+            {
+                DateTime ejecutaEn = Convert.ToDateTime(fila["ExecuteAt"]);
+                if (ejecutaEn <= DateTime.Now)
+                {
+                    // Usamos el motor para la ejecución pero disparado por el timer del Form
+                    _engine.Programar(fila);
+                }
+            }
         }
 
         private void LoadCategories()
