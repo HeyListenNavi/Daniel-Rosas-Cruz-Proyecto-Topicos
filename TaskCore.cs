@@ -36,7 +36,7 @@ namespace Daniel_Rosas_Cruz
                         CREATE TABLE IF NOT EXISTS Users (
                             Id INTEGER PRIMARY KEY AUTOINCREMENT, 
                             Name TEXT NOT NULL UNIQUE, 
-                            Password TEXT NOT NULL
+                            Password TEXT NOT NULL DEFAULT '1234'
                         );
                         CREATE TABLE IF NOT EXISTS Categories (
                             Id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -49,10 +49,10 @@ namespace Daniel_Rosas_Cruz
                             Name TEXT NOT NULL, 
                             FilePath TEXT NOT NULL, 
                             ExecuteAt DATETIME NOT NULL, 
-                            Status INTEGER NOT NULL, 
-                            LogMessage TEXT, 
+                            Status INTEGER NOT NULL DEFAULT 0, 
+                            LogMessage TEXT DEFAULT '', 
                             CategoryId INTEGER, 
-                            UserId INTEGER NOT NULL, 
+                            UserId INTEGER, 
                             FOREIGN KEY (CategoryId) REFERENCES Categories(Id) ON DELETE SET NULL, 
                             FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
                         );
@@ -61,44 +61,51 @@ namespace Daniel_Rosas_Cruz
                             TaskId INTEGER NOT NULL, 
                             ExecutedAt DATETIME NOT NULL, 
                             Status INTEGER NOT NULL, 
-                            LogMessage TEXT, 
+                            LogMessage TEXT DEFAULT '', 
                             FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE
                         );";
 
                     using (var command = new SqliteCommand(sqlBase, connection)) command.ExecuteNonQuery();
 
-                    bool tieneUniqueNuevo = false;
-                    using (var cmd = new SqliteCommand("SELECT sql FROM sqlite_master WHERE type='table' AND name='Categories'", connection))
+                    try
                     {
-                        var sqlObj = cmd.ExecuteScalar();
-                        if (sqlObj != null && sqlObj.ToString().Contains("UNIQUE")) tieneUniqueNuevo = true;
-                    }
-
-                    if (!tieneUniqueNuevo)
-                    {
-                        string migrateSql = @"
-                            CREATE TABLE IF NOT EXISTS Categories_new (
-                                Id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                Name TEXT NOT NULL, 
-                                UserId INTEGER, 
-                                FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE, 
-                                UNIQUE(Name, UserId)
-                            );
-                            INSERT OR IGNORE INTO Categories_new (Id, Name, UserId) SELECT Id, Name, UserId FROM Categories;
-                            DROP TABLE IF EXISTS Categories;
-                            ALTER TABLE Categories_new RENAME TO Categories;";
-                        
-                        using (var transaction = connection.BeginTransaction())
+                        bool migrado = false;
+                        using (var cmdCheck = new SqliteCommand("SELECT sql FROM sqlite_master WHERE name='Categories' AND sql LIKE '%UNIQUE%'", connection))
                         {
-                            try {
-                                using (var cmd = new SqliteCommand(migrateSql, connection, transaction)) cmd.ExecuteNonQuery();
-                                transaction.Commit();
-                            } catch { transaction.Rollback(); }
+                            var result = cmdCheck.ExecuteScalar();
+                            migrado = result != null && result.ToString().Contains("UNIQUE");
+                        }
+
+                        if (!migrado)
+                        {
+                            string migrateSql = @"
+                                CREATE TABLE IF NOT EXISTS Categories_temp (
+                                    Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                                    Name TEXT NOT NULL, 
+                                    UserId INTEGER, 
+                                    UNIQUE(Name, UserId)
+                                );
+                                INSERT OR IGNORE INTO Categories_temp (Id, Name, UserId) SELECT Id, Name, UserId FROM Categories;
+                                DROP TABLE IF EXISTS Categories;
+                                ALTER TABLE Categories_temp RENAME TO Categories;";
+                            
+                            using (var transaction = connection.BeginTransaction())
+                            {
+                                try {
+                                    using (var cmd = new SqliteCommand(migrateSql, connection, transaction)) cmd.ExecuteNonQuery();
+                                    transaction.Commit();
+                                } catch { transaction.Rollback(); }
+                            }
                         }
                     }
+                    catch { }
 
-                    try { using (var cmd = new SqliteCommand("ALTER TABLE Users ADD COLUMN Password TEXT DEFAULT '1234'", connection)) cmd.ExecuteNonQuery(); } catch { }
+                    try { using (var cmd = new SqliteCommand("ALTER TABLE Users ADD COLUMN Password TEXT NOT NULL DEFAULT '1234'", connection)) cmd.ExecuteNonQuery(); } catch { }
                     try { using (var cmd = new SqliteCommand("ALTER TABLE Tasks ADD COLUMN UserId INTEGER", connection)) cmd.ExecuteNonQuery(); } catch { }
+                    try { using (var cmd = new SqliteCommand("ALTER TABLE Tasks ADD COLUMN LogMessage TEXT DEFAULT ''", connection)) cmd.ExecuteNonQuery(); } catch { }
+
+                    string fixOrphans = "UPDATE Tasks SET UserId = (SELECT Id FROM Users ORDER BY Id ASC LIMIT 1) WHERE UserId IS NULL AND (SELECT COUNT(*) FROM Users) > 0";
+                    using (var cmd = new SqliteCommand(fixOrphans, connection)) cmd.ExecuteNonQuery();
 
                     CargarDatosIniciales(connection);
                 }
@@ -142,7 +149,9 @@ namespace Daniel_Rosas_Cruz
                         command.Parameters.AddWithValue("@Pass", password);
                         using (var reader = command.ExecuteReader())
                         {
-                            DataTable dt = new DataTable();
+                            DataSet ds = new DataSet();
+                            DataTable dt = ds.Tables.Add();
+                            ds.EnforceConstraints = false;
                             dt.Load(reader);
                             return dt.Rows.Count > 0 ? dt : null;
                         }
@@ -219,7 +228,9 @@ namespace Daniel_Rosas_Cruz
                         command.Parameters.AddWithValue("@UserId", userId);
                         using (var reader = command.ExecuteReader())
                         {
-                            DataTable dt = new DataTable();
+                            var ds = new DataSet();
+                            ds.EnforceConstraints = false;
+                            DataTable dt = ds.Tables.Add();
                             dt.Load(reader);
                             return dt;
                         }
@@ -310,13 +321,21 @@ namespace Daniel_Rosas_Cruz
                 using (var connection = new SqliteConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = @"SELECT t.*, c.Name as CategoryName, u.Name as UserName FROM Tasks t LEFT JOIN Categories c ON t.CategoryId = c.Id LEFT JOIN Users u ON t.UserId = u.Id WHERE t.UserId = @UserId";
+                    string query = @"
+SELECT t.Id, t.Name, t.FilePath, t.ExecuteAt, t.Status, t.LogMessage, t.CategoryId, t.UserId,
+       c.Name AS CategoryName, u.Name AS UserName
+FROM Tasks t
+LEFT JOIN Categories c ON t.CategoryId = c.Id
+LEFT JOIN Users u ON t.UserId = u.Id
+WHERE t.UserId = @UserId";
                     using (var command = new SqliteCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@UserId", userId);
                         using (var reader = command.ExecuteReader())
                         {
-                            DataTable dt = new DataTable();
+                            var ds = new DataSet();
+                            ds.EnforceConstraints = false;
+                            DataTable dt = ds.Tables.Add();
                             dt.Load(reader);
                             return dt;
                         }
@@ -337,7 +356,9 @@ namespace Daniel_Rosas_Cruz
                     {
                         using (var reader = command.ExecuteReader())
                         {
-                            DataTable dt = new DataTable();
+                            var ds = new DataSet();
+                            ds.EnforceConstraints = false;
+                            DataTable dt = ds.Tables.Add();
                             dt.Load(reader);
                             return dt;
                         }
@@ -426,7 +447,9 @@ namespace Daniel_Rosas_Cruz
                         command.Parameters.AddWithValue("@UserId", userId);
                         using (var reader = command.ExecuteReader())
                         {
-                            DataTable dt = new DataTable();
+                            var ds = new DataSet();
+                            ds.EnforceConstraints = false;
+                            DataTable dt = ds.Tables.Add();
                             dt.Load(reader);
                             return dt;
                         }

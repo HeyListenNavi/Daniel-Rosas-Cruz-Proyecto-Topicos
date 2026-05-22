@@ -81,6 +81,7 @@ namespace Daniel_Rosas_Cruz
             this.pnlInput.Name = "pnlInput";
             this.pnlInput.Size = new System.Drawing.Size(800, 130);
             this.pnlInput.TabIndex = 0;
+            this.pnlInput.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlInput_Paint);
             // 
             // lblTitle
             // 
@@ -88,7 +89,7 @@ namespace Daniel_Rosas_Cruz
             this.lblTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold);
             this.lblTitle.Location = new System.Drawing.Point(15, 15);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(232, 24);
+            this.lblTitle.Size = new System.Drawing.Size(231, 24);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "Programador de Tareas";
             // 
@@ -97,7 +98,7 @@ namespace Daniel_Rosas_Cruz
             this.lblName.AutoSize = true;
             this.lblName.Location = new System.Drawing.Point(20, 52);
             this.lblName.Name = "lblName";
-            this.lblName.Size = new System.Drawing.Size(94, 13);
+            this.lblName.Size = new System.Drawing.Size(100, 13);
             this.lblName.TabIndex = 1;
             this.lblName.Text = "Nombre de la tarea:";
             // 
@@ -113,7 +114,7 @@ namespace Daniel_Rosas_Cruz
             this.lblFile.AutoSize = true;
             this.lblFile.Location = new System.Drawing.Point(260, 52);
             this.lblFile.Name = "lblFile";
-            this.lblFile.Size = new System.Drawing.Size(92, 13);
+            this.lblFile.Size = new System.Drawing.Size(88, 13);
             this.lblFile.TabIndex = 3;
             this.lblFile.Text = "Ruta del archivo:";
             // 
@@ -139,7 +140,7 @@ namespace Daniel_Rosas_Cruz
             this.lblDate.AutoSize = true;
             this.lblDate.Location = new System.Drawing.Point(540, 52);
             this.lblDate.Name = "lblDate";
-            this.lblDate.Size = new System.Drawing.Size(107, 13);
+            this.lblDate.Size = new System.Drawing.Size(104, 13);
             this.lblDate.TabIndex = 6;
             this.lblDate.Text = "Fecha de ejecución:";
             // 
@@ -324,6 +325,7 @@ namespace Daniel_Rosas_Cruz
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gestor de Tareas";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.pnlInput.ResumeLayout(false);
             this.pnlInput.PerformLayout();
             this.pnlQuick.ResumeLayout(false);
