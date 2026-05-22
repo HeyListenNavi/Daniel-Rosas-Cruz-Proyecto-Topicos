@@ -1,26 +1,24 @@
 using System;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Daniel_Rosas_Cruz.Data;
-using Daniel_Rosas_Cruz.Engine;
-using Daniel_Rosas_Cruz.Models;
+using Daniel_Rosas_Cruz;
 using Daniel_Rosas_Cruz.UI;
-using TaskStatus = Daniel_Rosas_Cruz.Models.TaskStatus;
 
 namespace Daniel_Rosas_Cruz
 {
     public partial class Form1 : Form
     {
-        private readonly TaskRepository _repository;
-        private readonly User _currentUser;
-        private TaskSchedulerEngine _engine;
+        private readonly AccesoDatos _db;
+        private readonly DataRow _currentUser;
+        private ProcesadorTareas _engine;
         private NotifyIcon _notifyIcon;
 
-        public Form1(TaskRepository repository, User user)
+        public Form1(AccesoDatos db, DataRow user)
         {
-            _repository = repository;
+            _db = db;
             _currentUser = user;
             
             InitializeComponent();
@@ -34,23 +32,22 @@ namespace Daniel_Rosas_Cruz
             {
                 Icon = SystemIcons.Application,
                 Visible = false,
-                Text = $"Sesión: {_currentUser.Name}"
+                Text = $"Sesión: {_currentUser["Name"]}"
             };
             _notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
         }
 
         private void InitializeSystem()
         {
-            _engine = new TaskSchedulerEngine(_repository);
+            _engine = new ProcesadorTareas(_db);
             
-            _engine.OnTaskStatusChanged += Engine_OnTaskStatusChanged;
-            _engine.Start();
+            _engine.AlCambiarEstado += Engine_OnTaskStatusChanged;
+            _engine.Iniciar();
 
-            // Ocultar UI de selección de usuario ya que estamos en una sesión
             lblUser.Visible = false;
             _cmbUser.Visible = false;
 
-            this.Text = $"Gestor de Tareas - Usuario: {_currentUser.Name}";
+            this.Text = $"Gestor de Tareas - Usuario: {_currentUser["Name"]}";
 
             LoadCategories();
             LoadTasks();
@@ -58,8 +55,8 @@ namespace Daniel_Rosas_Cruz
 
         private void LoadCategories()
         {
-            var cats = _repository.GetCategories(_currentUser.Id);
-            _cmbCategory.DataSource = cats;
+            DataTable dt = _db.ObtenerCategorias(Convert.ToInt32(_currentUser["Id"]));
+            _cmbCategory.DataSource = dt;
             _cmbCategory.DisplayMember = "Name";
             _cmbCategory.ValueMember = "Id";
         }
@@ -67,14 +64,14 @@ namespace Daniel_Rosas_Cruz
         private void LoadTasks()
         {
             _pnlTasks.Controls.Clear();
-            var tasks = _repository.GetAllTasks(_currentUser.Id);
-            foreach (var task in tasks)
+            DataTable tasks = _db.ListarTareas(Convert.ToInt32(_currentUser["Id"]));
+            foreach (DataRow fila in tasks.Rows)
             {
-                AddTaskToUI(task);
+                AddTaskToUI(fila);
             }
         }
 
-        private void AddTaskToUI(TaskItem task)
+        private void AddTaskToUI(DataRow task)
         {
             var card = new TaskCardControl(task);
             card.OnDeleteRequested += Card_OnDeleteRequested;
@@ -82,17 +79,25 @@ namespace Daniel_Rosas_Cruz
             _pnlTasks.Controls.Add(card);
         }
 
-        private void Card_OnEditRequested(TaskItem task)
+        private void Card_OnEditRequested(DataRow task)
         {
-            using (var dialog = new EditTaskDialog(task, _repository.GetCategories(_currentUser.Id)))
+            using (var dialog = new EditTaskDialog(task, _db.ObtenerCategorias(Convert.ToInt32(_currentUser["Id"]))))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    var updatedTask = dialog.UpdatedTask;
-                    _repository.UpdateTask(updatedTask);
-                    if (updatedTask.Status == TaskStatus.Pending)
+                    _db.ActualizarTarea(Convert.ToInt32(task["Id"]), dialog.NuevoNombre, dialog.NuevaRuta, dialog.NuevaFecha, dialog.NuevaCat);
+                    
+                    // Si sigue pendiente, reprogramar
+                    if (Convert.ToInt32(task["Status"]) == 0)
                     {
-                        _engine.ScheduleTask(updatedTask);
+                        // Creamos una fila fresca para el motor
+                        DataTable temp = _db.ListarTareas(Convert.ToInt32(_currentUser["Id"]));
+                        foreach(DataRow r in temp.Rows) {
+                            if (Convert.ToInt32(r["Id"]) == Convert.ToInt32(task["Id"])) {
+                                _engine.Programar(r);
+                                break;
+                            }
+                        }
                     }
                     LoadTasks();
                 }
@@ -112,18 +117,10 @@ namespace Daniel_Rosas_Cruz
 
         private void BtnQuickAction_Click(object sender, EventArgs e)
         {
-            if (sender == _btn5s)
-            {
-                _dtpTime.Value = DateTime.Now.AddSeconds(5);
-            }
-            else if (sender == _btn10s)
-            {
-                _dtpTime.Value = DateTime.Now.AddSeconds(10);
-            }
-            else if (sender == _btn10m)
-            {
-                _dtpTime.Value = DateTime.Now.AddMinutes(10);
-            }
+            if (sender == _btn5s) _dtpTime.Value = DateTime.Now.AddSeconds(5);
+            else if (sender == _btn10s) _dtpTime.Value = DateTime.Now.AddSeconds(10);
+            else if (sender == _btn10m) _dtpTime.Value = DateTime.Now.AddMinutes(10);
+
             if (sender == _btnNotepad)
             {
                 _txtName.Text = "Abrir Bloc de Notas";
@@ -136,8 +133,8 @@ namespace Daniel_Rosas_Cruz
             }
         }
 
-            private void BtnAdd_Click(object sender, EventArgs e)
-            {
+        private void BtnAdd_Click(object sender, EventArgs e)
+        {
             if (string.IsNullOrWhiteSpace(_txtName.Text) || string.IsNullOrWhiteSpace(_txtFilePath.Text))
             {
                 MessageBox.Show("Por favor complete todos los campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -151,77 +148,52 @@ namespace Daniel_Rosas_Cruz
                 return;
             }
 
-            var newTask = new TaskItem
-            {
-                Name = _txtName.Text,
-                FilePath = _txtFilePath.Text,
-                ExecuteAt = executeAt,
-                Status = TaskStatus.Pending,
-                CategoryId = (int?)_cmbCategory.SelectedValue,
-                UserId = _currentUser.Id
-            };
-
-
-            _repository.AddTask(newTask);
+            int? catId = _cmbCategory.SelectedValue as int?;
+            _db.CrearTarea(_txtName.Text, _txtFilePath.Text, executeAt, 0, catId, Convert.ToInt32(_currentUser["Id"]));
             
-            var allTasks = _repository.GetAllTasks(_currentUser.Id);
-            var savedTask = allTasks.OrderByDescending(t => t.Id).First();
+            LoadTasks();
 
-            _engine.ScheduleTask(savedTask);
-            AddTaskToUI(savedTask);
+            // Programar la última añadida
+            DataTable dt = _db.ListarTareas(Convert.ToInt32(_currentUser["Id"]));
+            if (dt.Rows.Count > 0)
+            {
+                DataRow last = dt.Rows[dt.Rows.Count - 1];
+                _engine.Programar(last);
+            }
 
             _txtName.Clear();
             _txtFilePath.Clear();
         }
 
-        private void Card_OnDeleteRequested(TaskItem task)
+        private void Card_OnDeleteRequested(DataRow task)
         {
-            _engine.CancelTask(task.Id);
-            _repository.DeleteTask(task.Id);
+            _engine.Cancelar(Convert.ToInt32(task["Id"]));
+            _db.BorrarTarea(Convert.ToInt32(task["Id"]));
             LoadTasks();
         }
 
-        private void Engine_OnTaskStatusChanged(TaskItem updatedTask)
+        private void Engine_OnTaskStatusChanged(DataRow task)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action<TaskItem>(Engine_OnTaskStatusChanged), updatedTask);
+                this.Invoke(new Action<DataRow>(Engine_OnTaskStatusChanged), task);
                 return;
             }
 
             foreach (Control control in _pnlTasks.Controls)
             {
-                if (control is TaskCardControl card && card.Task.Id == updatedTask.Id)
+                if (control is TaskCardControl card && Convert.ToInt32(card.TaskRow["Id"]) == Convert.ToInt32(task["Id"]))
                 {
-                    card.UpdateTaskState(updatedTask);
+                    card.UpdateTaskState(task);
                     
-                    // Show notification for task lifecycle changes
-                    if (updatedTask.Status == TaskStatus.InProgress || updatedTask.Status == TaskStatus.Completed || updatedTask.Status == TaskStatus.Failed)
+                    int status = Convert.ToInt32(task["Status"]);
+                    if (status != 0)
                     {
-                        string title = "";
-                        string message = "";
-                        ToolTipIcon icon = ToolTipIcon.Info;
-
-                        switch (updatedTask.Status)
-                        {
-                            case TaskStatus.InProgress:
-                                title = "Tarea Iniciada";
-                                message = $"La tarea '{updatedTask.Name}' ha comenzado a ejecutarse.";
-                                break;
-                            case TaskStatus.Completed:
-                                title = "Tarea Completada";
-                                message = $"La tarea '{updatedTask.Name}' ha finalizado con éxito.";
-                                break;
-                            case TaskStatus.Failed:
-                                title = "Tarea Fallida";
-                                message = $"La tarea '{updatedTask.Name}' ha fallado.";
-                                icon = ToolTipIcon.Error;
-                                break;
-                        }
+                        string title = status == 1 ? "Iniciada" : (status == 2 ? "Completada" : "Fallida");
+                        string msg = $"Tarea: {task["Name"]}";
 
                         _notifyIcon.Visible = true;
-                        _notifyIcon.ShowBalloonTip(3000, title, message, icon);
-                        
+                        _notifyIcon.ShowBalloonTip(3000, title, msg, status == 3 ? ToolTipIcon.Error : ToolTipIcon.Info);
                         if (this.Visible) _notifyIcon.Visible = false;
                     }
                     break;
@@ -236,7 +208,7 @@ namespace Daniel_Rosas_Cruz
                 e.Cancel = true;
                 this.Hide();
                 _notifyIcon.Visible = true;
-                _notifyIcon.ShowBalloonTip(3000, "Gestor de Tareas", "La aplicación sigue ejecutándose en segundo plano.", ToolTipIcon.Info);
+                _notifyIcon.ShowBalloonTip(3000, "Gestor", "Sigue en segundo plano.", ToolTipIcon.Info);
             }
         }
 
@@ -249,8 +221,8 @@ namespace Daniel_Rosas_Cruz
 
         private void BtnHistory_Click(object sender, EventArgs e)
         {
-            var history = _repository.GetHistory(_currentUser.Id);
-            using (var dialog = new HistoryDialog(history))
+            DataTable hist = _db.ObtenerHistorial(Convert.ToInt32(_currentUser["Id"]));
+            using (var dialog = new HistoryDialog(hist))
             {
                 dialog.ShowDialog();
             }
@@ -258,7 +230,7 @@ namespace Daniel_Rosas_Cruz
 
         private void BtnManageCats_Click(object sender, EventArgs e)
         {
-            using (var dialog = new ManageCategoriesDialog(_repository, _currentUser))
+            using (var dialog = new ManageCategoriesDialog(_db, _currentUser))
             {
                 dialog.ShowDialog();
                 LoadCategories();
@@ -267,25 +239,17 @@ namespace Daniel_Rosas_Cruz
 
         private void BtnProfile_Click(object sender, EventArgs e)
         {
-            using (var dialog = new ProfileDialog(_repository, _currentUser))
+            using (var dialog = new ProfileDialog(_db, _currentUser))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    if (dialog.AccountDeleted)
-                    {
-                        Application.Exit();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Reinicia para ver los cambios de nombre.");
-                    }
+                    if (dialog.AccountDeleted) Application.Exit();
                 }
             }
         }
 
         private void _pnlTasks_Paint(object sender, PaintEventArgs e)
         {
-
         }
     }
 }

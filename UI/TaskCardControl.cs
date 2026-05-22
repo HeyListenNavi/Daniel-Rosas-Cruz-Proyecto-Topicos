@@ -1,24 +1,23 @@
 using System;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using Daniel_Rosas_Cruz.Models;
-using TaskStatus = Daniel_Rosas_Cruz.Models.TaskStatus;
 
 namespace Daniel_Rosas_Cruz.UI
 {
     public partial class TaskCardControl : UserControl
     {
-        private TaskItem _task;
+        private DataRow _taskRow;
         private System.Windows.Forms.Timer _timer;
 
-        public event Action<TaskItem> OnDeleteRequested;
-        public event Action<TaskItem> OnEditRequested;
+        public event Action<DataRow> OnDeleteRequested;
+        public event Action<DataRow> OnEditRequested;
 
-        public TaskItem Task => _task;
+        public DataRow TaskRow => _taskRow;
 
-        public TaskCardControl(TaskItem task)
+        public TaskCardControl(DataRow task)
         {
-            _task = task;
+            _taskRow = task;
             InitializeComponent();
             SetupTimer();
             UpdateUI();
@@ -33,9 +32,11 @@ namespace Daniel_Rosas_Cruz.UI
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (_task.Status == TaskStatus.Pending)
+            int status = Convert.ToInt32(_taskRow["Status"]);
+            if (status == 0) // Pending
             {
-                TimeSpan diff = _task.ExecuteAt - DateTime.Now;
+                DateTime executeAt = Convert.ToDateTime(_taskRow["ExecuteAt"]);
+                TimeSpan diff = executeAt - DateTime.Now;
                 if (diff.TotalSeconds > 0)
                 {
                     _lblCountdown.Text = $"Ejecuta en: {diff.Hours:D2}:{diff.Minutes:D2}:{diff.Seconds:D2}";
@@ -47,43 +48,45 @@ namespace Daniel_Rosas_Cruz.UI
             }
             else
             {
-                _lblCountdown.Text = _task.LogMessage ?? "";
+                _lblCountdown.Text = _taskRow["LogMessage"].ToString();
                 _timer.Stop();
             }
         }
 
-        public void UpdateTaskState(TaskItem updatedTask)
+        public void UpdateTaskState(DataRow updatedTask)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action<TaskItem>(UpdateTaskState), updatedTask);
+                this.Invoke(new Action<DataRow>(UpdateTaskState), updatedTask);
                 return;
             }
 
-            _task = updatedTask;
+            _taskRow = updatedTask;
             UpdateUI();
         }
 
         private void UpdateUI()
         {
-            _lblName.Text = _task.Name;
-            _lblCategory.Text = _task.CategoryName ?? "General";
-            _lblUser.Text = _task.UserName ?? "Sin Usuario";
-            _lblStatus.Text = GetStatusText(_task.Status);
-            _btnEdit.Visible = (_task.Status == TaskStatus.Pending);
+            _lblName.Text = _taskRow["Name"].ToString();
+            _lblCategory.Text = _taskRow["CategoryName"] != DBNull.Value ? _taskRow["CategoryName"].ToString() : "General";
+            _lblUser.Text = _taskRow["UserName"] != DBNull.Value ? _taskRow["UserName"].ToString() : "Sin Usuario";
+            
+            int status = Convert.ToInt32(_taskRow["Status"]);
+            _lblStatus.Text = GetStatusText(status);
+            _btnEdit.Visible = (status == 0);
 
             Timer_Tick(null, null);
         }
 
-        private string GetStatusText(TaskStatus status)
+        private string GetStatusText(int status)
         {
             switch (status)
             {
-                case TaskStatus.Pending: return "PENDIENTE";
-                case TaskStatus.InProgress: return "EN PROGRESO";
-                case TaskStatus.Completed: return "COMPLETADA";
-                case TaskStatus.Failed: return "FALLIDA";
-                default: return status.ToString().ToUpper();
+                case 0: return "PENDIENTE";
+                case 1: return "EN PROGRESO";
+                case 2: return "COMPLETADA";
+                case 3: return "FALLIDA";
+                default: return "DESCONOCIDO";
             }
         }
 
@@ -94,12 +97,12 @@ namespace Daniel_Rosas_Cruz.UI
 
         private void BtnDelete_Click(object sender, EventArgs e)
         {
-            OnDeleteRequested?.Invoke(_task);
+            OnDeleteRequested?.Invoke(_taskRow);
         }
 
         private void BtnEdit_Click(object sender, EventArgs e)
         {
-            OnEditRequested?.Invoke(_task);
+            OnEditRequested?.Invoke(_taskRow);
         }
     }
 }

@@ -1,23 +1,22 @@
 using System;
+using System.Data;
 using System.Windows.Forms;
-using Daniel_Rosas_Cruz.Data;
-using Daniel_Rosas_Cruz.Models;
 
 namespace Daniel_Rosas_Cruz.UI
 {
     public partial class ProfileDialog : Form
     {
-        private readonly TaskRepository _repository;
-        private readonly User _currentUser;
+        private readonly AccesoDatos _db;
+        private readonly DataRow _currentUser;
 
         public bool AccountDeleted { get; private set; } = false;
 
-        public ProfileDialog(TaskRepository repository, User user)
+        public ProfileDialog(AccesoDatos db, DataRow user)
         {
-            _repository = repository;
+            _db = db;
             _currentUser = user;
             InitializeComponent();
-            _txtUser.Text = _currentUser.Name;
+            _txtUser.Text = _currentUser["Name"].ToString();
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -31,7 +30,7 @@ namespace Daniel_Rosas_Cruz.UI
                 return;
             }
 
-            _repository.UpdateUser(_currentUser.Id, newName, newPass);
+            _db.ActualizarPerfil(Convert.ToInt32(_currentUser["Id"]), newName, newPass);
             MessageBox.Show("Perfil actualizado con éxito.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -42,7 +41,7 @@ namespace Daniel_Rosas_Cruz.UI
             var result = MessageBox.Show("¿ESTÁS SEGURO? Se borrarán todas tus tareas y categorías permanentemente.", "ADVERTENCIA", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (result == DialogResult.Yes)
             {
-                _repository.DeleteUser(_currentUser.Id);
+                _db.BorrarCuenta(Convert.ToInt32(_currentUser["Id"]));
                 AccountDeleted = true;
                 this.DialogResult = DialogResult.OK;
                 this.Close();

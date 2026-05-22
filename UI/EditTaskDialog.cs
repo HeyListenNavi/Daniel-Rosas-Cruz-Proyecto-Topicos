@@ -1,55 +1,39 @@
 using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Daniel_Rosas_Cruz.Models;
 
 namespace Daniel_Rosas_Cruz.UI
 {
     public partial class EditTaskDialog : Form
     {
-        public TaskItem UpdatedTask { get; private set; }
+        private DataRow _originalRow;
+        public string NuevoNombre { get; private set; }
+        public string NuevaRuta { get; private set; }
+        public DateTime NuevaFecha { get; private set; }
+        public int? NuevaCat { get; private set; }
 
-        public EditTaskDialog(TaskItem task, List<Category> categories)
+        public EditTaskDialog(DataRow task, DataTable categories)
         {
-            UpdatedTask = new TaskItem
-            {
-                Id = task.Id,
-                Name = task.Name,
-                FilePath = task.FilePath,
-                ExecuteAt = task.ExecuteAt,
-                Status = task.Status,
-                LogMessage = task.LogMessage,
-                CategoryId = task.CategoryId,
-                UserId = task.UserId
-            };
-            
+            _originalRow = task;
             InitializeComponent();
             
-            // Ocultar selector de usuario ya que no se permite cambiar de dueño aquí
             lblUser.Visible = false;
             _cmbUser.Visible = false;
 
-            PopulateCategories(categories);
-            PopulateFields();
-        }
-
-        private void PopulateCategories(List<Category> categories)
-        {
             _cmbCategory.DataSource = categories;
             _cmbCategory.DisplayMember = "Name";
             _cmbCategory.ValueMember = "Id";
-        }
 
-        private void PopulateFields()
-        {
-            _txtName.Text = UpdatedTask.Name;
-            _txtFilePath.Text = UpdatedTask.FilePath;
-            _dtpDate.Value = UpdatedTask.ExecuteAt.Date;
-            _dtpTime.Value = UpdatedTask.ExecuteAt;
-            if (UpdatedTask.CategoryId.HasValue)
+            _txtName.Text = task["Name"].ToString();
+            _txtFilePath.Text = task["FilePath"].ToString();
+            _dtpDate.Value = Convert.ToDateTime(task["ExecuteAt"]).Date;
+            _dtpTime.Value = Convert.ToDateTime(task["ExecuteAt"]);
+            
+            if (task["CategoryId"] != DBNull.Value)
             {
-                _cmbCategory.SelectedValue = UpdatedTask.CategoryId.Value;
+                _cmbCategory.SelectedValue = task["CategoryId"];
             }
         }
 
@@ -66,10 +50,10 @@ namespace Daniel_Rosas_Cruz.UI
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            UpdatedTask.Name = _txtName.Text;
-            UpdatedTask.FilePath = _txtFilePath.Text;
-            UpdatedTask.ExecuteAt = _dtpDate.Value.Date + _dtpTime.Value.TimeOfDay;
-            UpdatedTask.CategoryId = (int?)_cmbCategory.SelectedValue;
+            NuevoNombre = _txtName.Text;
+            NuevaRuta = _txtFilePath.Text;
+            NuevaFecha = _dtpDate.Value.Date + _dtpTime.Value.TimeOfDay;
+            NuevaCat = _cmbCategory.SelectedValue as int?;
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

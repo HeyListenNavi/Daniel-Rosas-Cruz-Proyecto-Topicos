@@ -1,18 +1,17 @@
 using System;
+using System.Data;
 using System.Windows.Forms;
-using Daniel_Rosas_Cruz.Data;
-using Daniel_Rosas_Cruz.Models;
 
 namespace Daniel_Rosas_Cruz.UI
 {
     public partial class LoginForm : Form
     {
-        private readonly TaskRepository _repository;
-        public User AuthenticatedUser { get; private set; }
+        private readonly AccesoDatos _db;
+        public DataRow UsuarioAutenticado { get; private set; }
 
-        public LoginForm(TaskRepository repository)
+        public LoginForm(AccesoDatos db)
         {
-            _repository = repository;
+            _db = db;
             InitializeComponent();
             ToggleRegisterFields(false);
         }
@@ -55,10 +54,10 @@ namespace Daniel_Rosas_Cruz.UI
                 return;
             }
 
-            var result = _repository.Login(user, pass);
-            if (result != null)
+            DataTable dt = _db.Login(user, pass);
+            if (dt != null)
             {
-                AuthenticatedUser = result;
+                UsuarioAutenticado = dt.Rows[0];
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
@@ -96,7 +95,7 @@ namespace Daniel_Rosas_Cruz.UI
                 return;
             }
 
-            if (_repository.Register(user, pass))
+            if (_db.RegistrarUsuario(user, pass))
             {
                 _lblMessage.ForeColor = System.Drawing.Color.Green;
                 _lblMessage.Text = "Registro exitoso. ¡Inicia sesión!";
