@@ -22,6 +22,7 @@ namespace Daniel_Rosas_Cruz
             _currentUser = user;
             
             InitializeComponent();
+            this.Icon = Icon.FromHandle(((Bitmap)Properties.Resources.Written_Book_JE2_BE2).GetHicon());
             SetupNotifyIcon();
             InitializeSystem();
         }

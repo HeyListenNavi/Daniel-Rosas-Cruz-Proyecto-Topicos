@@ -20,14 +20,9 @@ namespace Daniel_Rosas_Cruz
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this._tmrExecution = new System.Windows.Forms.Timer(this.components);
             this._pnlTasks = new System.Windows.Forms.FlowLayoutPanel();
-            // ... (rest of controls)
-            // 
-            // _tmrExecution
-            // 
-            this._tmrExecution.Interval = 10000;
-            this._tmrExecution.Tick += new System.EventHandler(this._tmrExecution_Tick);
             this.pnlInput = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.lblName = new System.Windows.Forms.Label();
@@ -56,6 +51,11 @@ namespace Daniel_Rosas_Cruz
             this.pnlInput.SuspendLayout();
             this.pnlQuick.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // _tmrExecution
+            // 
+            this._tmrExecution.Interval = 10000;
+            this._tmrExecution.Tick += new System.EventHandler(this._tmrExecution_Tick);
             // 
             // _pnlTasks
             // 
@@ -329,6 +329,7 @@ namespace Daniel_Rosas_Cruz
             this.Controls.Add(this._pnlTasks);
             this.Controls.Add(this.pnlQuick);
             this.Controls.Add(this.pnlInput);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gestor de Tareas";
