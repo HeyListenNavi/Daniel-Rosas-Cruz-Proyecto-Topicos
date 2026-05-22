@@ -30,7 +30,7 @@ namespace Daniel_Rosas_Cruz
             {
                 Icon = SystemIcons.Application,
                 Visible = false,
-                Text = "Gestor de Tareas Ejecutándose"
+                Text = "Programador de Tareas"
             };
             _notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
         }
@@ -88,7 +88,7 @@ namespace Daniel_Rosas_Cruz
             {
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    _txtFilePath.TextValue = ofd.FileName;
+                    _txtFilePath.Text = ofd.FileName;
                 }
             }
         }
@@ -112,19 +112,19 @@ namespace Daniel_Rosas_Cruz
             }
             if (sender == _btnNotepad)
             {
-                _txtName.TextValue = "Abrir Bloc de Notas";
-                _txtFilePath.TextValue = "notepad.exe";
+                _txtName.Text = "Abrir Bloc de Notas";
+                _txtFilePath.Text = "notepad.exe";
             }
             else if (sender == _btnMsg)
             {
-                _txtName.TextValue = "Abrir Calculadora";
-                _txtFilePath.TextValue = "calc.exe";
+                _txtName.Text = "Abrir Calculadora";
+                _txtFilePath.Text = "calc.exe";
             }
             }
 
             private void BtnAdd_Click(object sender, EventArgs e)
             {
-            if (string.IsNullOrWhiteSpace(_txtName.TextValue) || string.IsNullOrWhiteSpace(_txtFilePath.TextValue))
+            if (string.IsNullOrWhiteSpace(_txtName.Text) || string.IsNullOrWhiteSpace(_txtFilePath.Text))
             {
                 MessageBox.Show("Por favor complete todos los campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -139,8 +139,8 @@ namespace Daniel_Rosas_Cruz
 
             var newTask = new TaskItem
             {
-                Name = _txtName.TextValue,
-                FilePath = _txtFilePath.TextValue,
+                Name = _txtName.Text,
+                FilePath = _txtFilePath.Text,
                 ExecuteAt = executeAt,
                 Status = TaskStatus.Pending
             };

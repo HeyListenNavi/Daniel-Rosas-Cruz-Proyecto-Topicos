@@ -63,12 +63,6 @@
     <Compile Include="UI\TaskCardControl.Designer.cs">
       <DependentUpon>TaskCardControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\Components\ModernButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\Components\ModernTextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\EditTaskDialog.cs">
       <SubType>Form</SubType>
     </Compile>

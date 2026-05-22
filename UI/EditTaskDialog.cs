@@ -27,8 +27,8 @@ namespace Daniel_Rosas_Cruz.UI
 
         private void PopulateFields()
         {
-            _txtName.TextValue = UpdatedTask.Name;
-            _txtFilePath.TextValue = UpdatedTask.FilePath;
+            _txtName.Text = UpdatedTask.Name;
+            _txtFilePath.Text = UpdatedTask.FilePath;
             _dtpDate.Value = UpdatedTask.ExecuteAt.Date;
             _dtpTime.Value = UpdatedTask.ExecuteAt;
         }
@@ -39,15 +39,15 @@ namespace Daniel_Rosas_Cruz.UI
             {
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    _txtFilePath.TextValue = ofd.FileName;
+                    _txtFilePath.Text = ofd.FileName;
                 }
             }
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            UpdatedTask.Name = _txtName.TextValue;
-            UpdatedTask.FilePath = _txtFilePath.TextValue;
+            UpdatedTask.Name = _txtName.Text;
+            UpdatedTask.FilePath = _txtFilePath.Text;
             UpdatedTask.ExecuteAt = _dtpDate.Value.Date + _dtpTime.Value.TimeOfDay;
             this.DialogResult = DialogResult.OK;
             this.Close();
