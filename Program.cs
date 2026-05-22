@@ -16,7 +16,17 @@ namespace Daniel_Rosas_Cruz
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            string dbPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tasks.db");
+            var repository = new Data.TaskRepository(dbPath);
+
+            using (var login = new UI.LoginForm(repository))
+            {
+                if (login.ShowDialog() == DialogResult.OK)
+                {
+                    Application.Run(new Form1(repository, login.AuthenticatedUser));
+                }
+            }
         }
     }
 }

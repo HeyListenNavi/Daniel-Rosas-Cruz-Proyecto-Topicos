@@ -55,6 +55,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Models\TaskItem.cs" />
+    <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\TaskHistoryItem.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Data\TaskRepository.cs" />
     <Compile Include="Engine\TaskSchedulerEngine.cs" />
     <Compile Include="UI\TaskCardControl.cs">
@@ -69,6 +72,30 @@
     <Compile Include="UI\EditTaskDialog.Designer.cs">
       <DependentUpon>EditTaskDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\HistoryDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\HistoryDialog.Designer.cs">
+      <DependentUpon>HistoryDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\LoginForm.Designer.cs">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ManageCategoriesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ManageCategoriesDialog.Designer.cs">
+      <DependentUpon>ManageCategoriesDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ProfileDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ProfileDialog.Designer.cs">
+      <DependentUpon>ProfileDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -79,6 +106,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="UI\ManageCategoriesDialog.resx">
+      <DependentUpon>ManageCategoriesDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

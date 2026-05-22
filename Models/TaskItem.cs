@@ -21,5 +21,9 @@ namespace Daniel_Rosas_Cruz.Models
         public DateTime ExecuteAt { get; set; }
         public TaskStatus Status { get; set; }
         public string LogMessage { get; set; }
+        public int? CategoryId { get; set; }
+        public string CategoryName { get; set; }
+        public int? UserId { get; set; }
+        public string UserName { get; set; }
     }
 }

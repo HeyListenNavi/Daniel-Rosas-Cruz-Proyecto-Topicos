@@ -67,6 +67,8 @@ namespace Daniel_Rosas_Cruz.UI
         private void UpdateUI()
         {
             _lblName.Text = _task.Name;
+            _lblCategory.Text = _task.CategoryName ?? "General";
+            _lblUser.Text = _task.UserName ?? "Sin Usuario";
             _lblStatus.Text = GetStatusText(_task.Status);
             _btnEdit.Visible = (_task.Status == TaskStatus.Pending);
 

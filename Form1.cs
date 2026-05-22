@@ -13,12 +13,16 @@ namespace Daniel_Rosas_Cruz
 {
     public partial class Form1 : Form
     {
-        private TaskRepository _repository;
+        private readonly TaskRepository _repository;
+        private readonly User _currentUser;
         private TaskSchedulerEngine _engine;
         private NotifyIcon _notifyIcon;
 
-        public Form1()
+        public Form1(TaskRepository repository, User user)
         {
+            _repository = repository;
+            _currentUser = user;
+            
             InitializeComponent();
             SetupNotifyIcon();
             InitializeSystem();
@@ -30,27 +34,40 @@ namespace Daniel_Rosas_Cruz
             {
                 Icon = SystemIcons.Application,
                 Visible = false,
-                Text = "Programador de Tareas"
+                Text = $"Sesión: {_currentUser.Name}"
             };
             _notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
         }
 
         private void InitializeSystem()
         {
-            string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tasks.db");
-            _repository = new TaskRepository(dbPath);
             _engine = new TaskSchedulerEngine(_repository);
             
             _engine.OnTaskStatusChanged += Engine_OnTaskStatusChanged;
             _engine.Start();
 
+            // Ocultar UI de selección de usuario ya que estamos en una sesión
+            lblUser.Visible = false;
+            _cmbUser.Visible = false;
+
+            this.Text = $"Gestor de Tareas - Usuario: {_currentUser.Name}";
+
+            LoadCategories();
             LoadTasks();
+        }
+
+        private void LoadCategories()
+        {
+            var cats = _repository.GetCategories(_currentUser.Id);
+            _cmbCategory.DataSource = cats;
+            _cmbCategory.DisplayMember = "Name";
+            _cmbCategory.ValueMember = "Id";
         }
 
         private void LoadTasks()
         {
             _pnlTasks.Controls.Clear();
-            var tasks = _repository.GetAllTasks();
+            var tasks = _repository.GetAllTasks(_currentUser.Id);
             foreach (var task in tasks)
             {
                 AddTaskToUI(task);
@@ -67,7 +84,7 @@ namespace Daniel_Rosas_Cruz
 
         private void Card_OnEditRequested(TaskItem task)
         {
-            using (var dialog = new EditTaskDialog(task))
+            using (var dialog = new EditTaskDialog(task, _repository.GetCategories(_currentUser.Id)))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -97,17 +114,14 @@ namespace Daniel_Rosas_Cruz
         {
             if (sender == _btn5s)
             {
-                _dtpDate.Value = DateTime.Now;
                 _dtpTime.Value = DateTime.Now.AddSeconds(5);
             }
             else if (sender == _btn10s)
             {
-                _dtpDate.Value = DateTime.Now;
                 _dtpTime.Value = DateTime.Now.AddSeconds(10);
             }
             else if (sender == _btn10m)
             {
-                _dtpDate.Value = DateTime.Now;
                 _dtpTime.Value = DateTime.Now.AddMinutes(10);
             }
             if (sender == _btnNotepad)
@@ -120,7 +134,7 @@ namespace Daniel_Rosas_Cruz
                 _txtName.Text = "Abrir Calculadora";
                 _txtFilePath.Text = "calc.exe";
             }
-            }
+        }
 
             private void BtnAdd_Click(object sender, EventArgs e)
             {
@@ -142,13 +156,15 @@ namespace Daniel_Rosas_Cruz
                 Name = _txtName.Text,
                 FilePath = _txtFilePath.Text,
                 ExecuteAt = executeAt,
-                Status = TaskStatus.Pending
+                Status = TaskStatus.Pending,
+                CategoryId = (int?)_cmbCategory.SelectedValue,
+                UserId = _currentUser.Id
             };
 
 
             _repository.AddTask(newTask);
             
-            var allTasks = _repository.GetAllTasks();
+            var allTasks = _repository.GetAllTasks(_currentUser.Id);
             var savedTask = allTasks.OrderByDescending(t => t.Id).First();
 
             _engine.ScheduleTask(savedTask);
@@ -206,7 +222,6 @@ namespace Daniel_Rosas_Cruz
                         _notifyIcon.Visible = true;
                         _notifyIcon.ShowBalloonTip(3000, title, message, icon);
                         
-                        // Hide notification icon if form is visible (to maintain tray behavior)
                         if (this.Visible) _notifyIcon.Visible = false;
                     }
                     break;
@@ -230,6 +245,42 @@ namespace Daniel_Rosas_Cruz
             this.Show();
             this.WindowState = FormWindowState.Normal;
             _notifyIcon.Visible = false;
+        }
+
+        private void BtnHistory_Click(object sender, EventArgs e)
+        {
+            var history = _repository.GetHistory(_currentUser.Id);
+            using (var dialog = new HistoryDialog(history))
+            {
+                dialog.ShowDialog();
+            }
+        }
+
+        private void BtnManageCats_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new ManageCategoriesDialog(_repository, _currentUser))
+            {
+                dialog.ShowDialog();
+                LoadCategories();
+            }
+        }
+
+        private void BtnProfile_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new ProfileDialog(_repository, _currentUser))
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    if (dialog.AccountDeleted)
+                    {
+                        Application.Exit();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Reinicia para ver los cambios de nombre.");
+                    }
+                }
+            }
         }
 
         private void _pnlTasks_Paint(object sender, PaintEventArgs e)
