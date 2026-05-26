@@ -48,6 +48,7 @@ namespace Daniel_Rosas_Cruz
             this._btnHistory = new System.Windows.Forms.Button();
             this._btnManageCats = new System.Windows.Forms.Button();
             this._btnProfile = new System.Windows.Forms.Button();
+            this._btnLogout = new System.Windows.Forms.Button();
             this.pnlInput.SuspendLayout();
             this.pnlQuick.SuspendLayout();
             this.SuspendLayout();
@@ -62,10 +63,10 @@ namespace Daniel_Rosas_Cruz
             this._pnlTasks.AutoScroll = true;
             this._pnlTasks.BackColor = System.Drawing.SystemColors.Control;
             this._pnlTasks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._pnlTasks.Location = new System.Drawing.Point(0, 180);
+            this._pnlTasks.Location = new System.Drawing.Point(0, 202);
             this._pnlTasks.Name = "_pnlTasks";
             this._pnlTasks.Padding = new System.Windows.Forms.Padding(10);
-            this._pnlTasks.Size = new System.Drawing.Size(800, 420);
+            this._pnlTasks.Size = new System.Drawing.Size(800, 398);
             this._pnlTasks.TabIndex = 2;
             // 
             // pnlInput
@@ -226,10 +227,11 @@ namespace Daniel_Rosas_Cruz
             this.pnlQuick.Controls.Add(this._btnHistory);
             this.pnlQuick.Controls.Add(this._btnManageCats);
             this.pnlQuick.Controls.Add(this._btnProfile);
+            this.pnlQuick.Controls.Add(this._btnLogout);
             this.pnlQuick.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlQuick.Location = new System.Drawing.Point(0, 130);
             this.pnlQuick.Name = "pnlQuick";
-            this.pnlQuick.Size = new System.Drawing.Size(800, 50);
+            this.pnlQuick.Size = new System.Drawing.Size(800, 72);
             this.pnlQuick.TabIndex = 1;
             // 
             // lblQuick
@@ -321,6 +323,16 @@ namespace Daniel_Rosas_Cruz
             this._btnProfile.UseVisualStyleBackColor = true;
             this._btnProfile.Click += new System.EventHandler(this.BtnProfile_Click);
             // 
+            // _btnLogout
+            // 
+            this._btnLogout.Location = new System.Drawing.Point(695, 38);
+            this._btnLogout.Name = "_btnLogout";
+            this._btnLogout.Size = new System.Drawing.Size(90, 25);
+            this._btnLogout.TabIndex = 10;
+            this._btnLogout.Text = "Cerrar Sesión";
+            this._btnLogout.UseVisualStyleBackColor = true;
+            this._btnLogout.Click += new System.EventHandler(this.BtnLogout_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -358,6 +370,7 @@ namespace Daniel_Rosas_Cruz
         private System.Windows.Forms.Button _btnHistory;
         private System.Windows.Forms.Button _btnManageCats;
         private System.Windows.Forms.Button _btnProfile;
+        private System.Windows.Forms.Button _btnLogout;
         private System.Windows.Forms.Panel pnlInput;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Label lblName;

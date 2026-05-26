@@ -15,6 +15,7 @@ namespace Daniel_Rosas_Cruz
         private readonly DataRow _currentUser;
         private ProcesadorTareas _engine;
         private NotifyIcon _notifyIcon;
+        private bool _isLoggingOut = false;
 
         public Form1(AccesoDatos db, DataRow user)
         {
@@ -221,7 +222,7 @@ namespace Daniel_Rosas_Cruz
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing)
+            if (!_isLoggingOut && e.CloseReason == CloseReason.UserClosing)
             {
                 e.Cancel = true;
                 this.Hide();
@@ -264,6 +265,12 @@ namespace Daniel_Rosas_Cruz
                     if (dialog.AccountDeleted) Application.Exit();
                 }
             }
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            _isLoggingOut = true;
+            this.Close();
         }
 
         private void _pnlTasks_Paint(object sender, PaintEventArgs e)

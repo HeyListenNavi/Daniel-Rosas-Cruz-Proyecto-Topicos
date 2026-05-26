@@ -20,11 +20,21 @@ namespace Daniel_Rosas_Cruz
             string connectionString = @"Server=localhost\SQLEXPRESS01;Database=TaskAppDB;Integrated Security=True;";
             var db = new AccesoDatos(connectionString);
 
-            using (var login = new UI.LoginForm(db))
+            while (true)
             {
-                if (login.ShowDialog() == DialogResult.OK)
+                using (var login = new UI.LoginForm(db))
                 {
-                    Application.Run(new Form1(db, login.UsuarioAutenticado));
+                    if (login.ShowDialog() == DialogResult.OK)
+                    {
+                        using (var mainForm = new Form1(db, login.UsuarioAutenticado))
+                        {
+                            Application.Run(mainForm);
+                        }
+                    }
+                    else
+                    {
+                        break; // User cancelled login or closed the login window
+                    }
                 }
             }
         }
