@@ -100,7 +100,7 @@ namespace Daniel_Rosas_Cruz.UI
             if (string.IsNullOrEmpty(user) || pass.Length < 4)
             {
                 _lblMessage.ForeColor = Color.FromArgb(229, 62, 62);
-                _lblMessage.Text = "Mínimo 4 caracteres en pass.";
+                _lblMessage.Text = "Usuario requerido y pass min 4 carac.";
                 return;
             }
 
@@ -113,14 +113,16 @@ namespace Daniel_Rosas_Cruz.UI
 
             if (_db.RegistrarUsuario(user, pass))
             {
-                _lblMessage.ForeColor = Color.FromArgb(56, 161, 105);
-                _lblMessage.Text = "¡Registro exitoso! Ya puedes entrar.";
+                MessageBox.Show("¡Cuenta creada exitosamente! Ya puedes iniciar sesión.", "Registro", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ToggleRegisterFields(false);
+                _lblMessage.ForeColor = Color.FromArgb(56, 161, 105);
+                _lblMessage.Text = "Cuenta lista. Inicia sesión.";
             }
             else
             {
                 _lblMessage.ForeColor = Color.FromArgb(229, 62, 62);
-                _lblMessage.Text = "El usuario ya existe.";
+                _lblMessage.Text = "Ese nombre de usuario ya está en uso.";
+                MessageBox.Show("El usuario ya existe. Por favor elige otro nombre.", "Error de Registro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }
