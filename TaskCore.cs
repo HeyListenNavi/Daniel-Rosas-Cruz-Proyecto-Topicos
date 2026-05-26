@@ -510,7 +510,7 @@ WHERE t.UserId = @UserId";
 
             if (ms <= 0)
             {
-                Task.Run(() => EjecutarArchivo(filaTarea));
+                IniciarHiloEjecucion(filaTarea);
                 return;
             }
 
@@ -519,11 +519,20 @@ WHERE t.UserId = @UserId";
             timer.Elapsed += (s, e) =>
             {
                 _timers.TryRemove(id, out _);
-                EjecutarArchivo(filaTarea);
+                IniciarHiloEjecucion(filaTarea);
                 timer.Dispose();
             };
             _timers.TryAdd(id, timer);
             timer.Start();
+        }
+
+        private void IniciarHiloEjecucion(DataRow fila)
+        {
+            // Creamos un hilo explícito para cada ejecución de tarea
+            Thread thread = new Thread(() => EjecutarArchivo(fila));
+            thread.IsBackground = true;
+            thread.Name = $"TaskRunner_{fila["Id"]}";
+            thread.Start();
         }
 
         public void Cancelar(int id)
