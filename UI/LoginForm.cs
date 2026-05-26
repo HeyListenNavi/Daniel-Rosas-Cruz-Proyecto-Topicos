@@ -42,6 +42,8 @@ namespace Daniel_Rosas_Cruz.UI
                 _lblMessage.Top = 210;
             }
 
+            _txtPass.Clear();
+            _txtConfirmPass.Clear();
             _txtUser.Focus();
             _txtUser.SelectAll();
         }
@@ -116,6 +118,8 @@ namespace Daniel_Rosas_Cruz.UI
 
             if (_db.RegistrarUsuario(user, pass))
             {
+                _txtPass.Clear();
+                _txtConfirmPass.Clear();
                 MessageBox.Show("¡Cuenta creada exitosamente! Ya puedes iniciar sesión.", "Registro", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ToggleRegisterFields(false);
                 _lblMessage.ForeColor = Color.FromArgb(56, 161, 105);
