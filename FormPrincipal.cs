@@ -51,9 +51,6 @@ namespace Proyecto_Topicos
 
             this.Text = $"Gestor de Tareas - Usuario: {_currentUser["Name"]}";
 
-            LoadCategories();
-            LoadTasks();
-
             _tmrExecution.Start(); // Iniciamos el timer del Form
         }
 
@@ -91,12 +88,19 @@ namespace Proyecto_Topicos
                 DataTable tasks = _db.ListarTareas(userId);
                 
                 // Volvemos al hilo de UI para actualizar los controles
-                this.Invoke(new Action(() => {
-                    foreach (DataRow fila in tasks.Rows)
-                    {
-                        AddTaskToUI(fila);
-                    }
-                }));
+                // Agregamos comprobaciones de seguridad para evitar excepciones al cerrar el form
+                if (this.IsHandleCreated && !this.IsDisposed)
+                {
+                    this.Invoke(new Action(() => {
+                        if (!this.IsDisposed)
+                        {
+                            foreach (DataRow fila in tasks.Rows)
+                            {
+                                AddTaskToUI(fila);
+                            }
+                        }
+                    }));
+                }
             });
             thread.IsBackground = true; // El hilo termina si la app se cierra
             thread.Start();
@@ -205,9 +209,14 @@ namespace Proyecto_Topicos
 
         private void Engine_OnTaskStatusChanged(DataRow task)
         {
+            if (this.IsDisposed) return;
+
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action<DataRow>(Engine_OnTaskStatusChanged), task);
+                if (this.IsHandleCreated && !this.IsDisposed)
+                {
+                    this.Invoke(new Action<DataRow>(Engine_OnTaskStatusChanged), task);
+                }
                 return;
             }
 
@@ -296,7 +305,8 @@ namespace Proyecto_Topicos
 
         private void FormPrincipal_Load(object sender, EventArgs e)
         {
-
+            LoadCategories();
+            LoadTasks();
         }
     }
 }
