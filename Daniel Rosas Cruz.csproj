@@ -111,6 +111,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="UI\LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\ManageCategoriesDialog.resx">
       <DependentUpon>ManageCategoriesDialog.cs</DependentUpon>
     </EmbeddedResource>

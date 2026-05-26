@@ -73,9 +73,22 @@ namespace Daniel_Rosas_Cruz.UI
             
             int status = Convert.ToInt32(_taskRow["Status"]);
             _lblStatus.Text = GetStatusText(status);
+            _lblStatus.ForeColor = GetStatusColor(status);
             _btnEdit.Visible = (status == 0);
 
             Timer_Tick(null, null);
+        }
+
+        private Color GetStatusColor(int status)
+        {
+            switch (status)
+            {
+                case 0: return Color.FromArgb(49, 130, 206); // Blue
+                case 1: return Color.FromArgb(214, 158, 46); // Orange/Yellow
+                case 2: return Color.FromArgb(56, 161, 105); // Green
+                case 3: return Color.FromArgb(229, 62, 62);  // Red
+                default: return Color.Gray;
+            }
         }
 
         private string GetStatusText(int status)

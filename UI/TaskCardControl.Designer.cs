@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace Daniel_Rosas_Cruz.UI
 {
     partial class TaskCardControl
@@ -32,76 +34,91 @@ namespace Daniel_Rosas_Cruz.UI
             // _lblName
             // 
             this._lblName.AutoSize = true;
-            this._lblName.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
-            this._lblName.Location = new System.Drawing.Point(10, 10);
+            this._lblName.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this._lblName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(55)))), ((int)(((byte)(72)))));
+            this._lblName.Location = new System.Drawing.Point(12, 10);
             this._lblName.Name = "_lblName";
-            this._lblName.Size = new System.Drawing.Size(64, 17);
+            this._lblName.Size = new System.Drawing.Size(67, 20);
             this._lblName.TabIndex = 0;
             this._lblName.Text = "Nombre";
             // 
             // _lblCategory
             // 
             this._lblCategory.AutoSize = true;
-            this._lblCategory.ForeColor = System.Drawing.Color.DimGray;
-            this._lblCategory.Location = new System.Drawing.Point(10, 27);
+            this._lblCategory.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this._lblCategory.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(113)))), ((int)(((byte)(128)))), ((int)(((byte)(150)))));
+            this._lblCategory.Location = new System.Drawing.Point(12, 32);
             this._lblCategory.Name = "_lblCategory";
-            this._lblCategory.Size = new System.Drawing.Size(52, 13);
+            this._lblCategory.Size = new System.Drawing.Size(58, 15);
             this._lblCategory.TabIndex = 1;
             this._lblCategory.Text = "Categoría";
             // 
             // _lblUser
             // 
             this._lblUser.AutoSize = true;
-            this._lblUser.ForeColor = System.Drawing.Color.DimGray;
-            this._lblUser.Location = new System.Drawing.Point(150, 27);
+            this._lblUser.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this._lblUser.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(113)))), ((int)(((byte)(128)))), ((int)(((byte)(150)))));
+            this._lblUser.Location = new System.Drawing.Point(140, 32);
             this._lblUser.Name = "_lblUser";
-            this._lblUser.Size = new System.Drawing.Size(43, 13);
+            this._lblUser.Size = new System.Drawing.Size(47, 15);
             this._lblUser.TabIndex = 2;
             this._lblUser.Text = "Usuario";
             // 
             // _lblStatus
             // 
             this._lblStatus.AutoSize = true;
-            this._lblStatus.Location = new System.Drawing.Point(10, 45);
+            this._lblStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this._lblStatus.Location = new System.Drawing.Point(12, 55);
             this._lblStatus.Name = "_lblStatus";
-            this._lblStatus.Size = new System.Drawing.Size(40, 13);
+            this._lblStatus.Size = new System.Drawing.Size(42, 15);
             this._lblStatus.TabIndex = 3;
             this._lblStatus.Text = "Estado";
             // 
             // _lblCountdown
             // 
             this._lblCountdown.AutoSize = true;
-            this._lblCountdown.Location = new System.Drawing.Point(10, 65);
+            this._lblCountdown.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this._lblCountdown.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(85)))), ((int)(((byte)(104)))));
+            this._lblCountdown.Location = new System.Drawing.Point(140, 55);
             this._lblCountdown.Name = "_lblCountdown";
-            this._lblCountdown.Size = new System.Drawing.Size(0, 13);
+            this._lblCountdown.Size = new System.Drawing.Size(0, 15);
             this._lblCountdown.TabIndex = 4;
             // 
             // _btnDelete
             // 
-            this._btnDelete.Location = new System.Drawing.Point(340, 10);
+            this._btnDelete.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(215)))), ((int)(((byte)(215)))));
+            this._btnDelete.FlatAppearance.BorderSize = 0;
+            this._btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this._btnDelete.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this._btnDelete.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(155)))), ((int)(((byte)(44)))), ((int)(((byte)(44)))));
+            this._btnDelete.Location = new System.Drawing.Point(325, 45);
             this._btnDelete.Name = "_btnDelete";
-            this._btnDelete.Size = new System.Drawing.Size(50, 23);
+            this._btnDelete.Size = new System.Drawing.Size(60, 26);
             this._btnDelete.TabIndex = 5;
             this._btnDelete.Text = "Borrar";
-            this._btnDelete.UseVisualStyleBackColor = true;
+            this._btnDelete.UseVisualStyleBackColor = false;
             this._btnDelete.Click += new System.EventHandler(this.BtnDelete_Click);
             // 
             // _btnEdit
             // 
-            this._btnEdit.Location = new System.Drawing.Point(285, 10);
+            this._btnEdit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(237)))), ((int)(((byte)(242)))), ((int)(((byte)(247)))));
+            this._btnEdit.FlatAppearance.BorderSize = 0;
+            this._btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this._btnEdit.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this._btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(55)))), ((int)(((byte)(72)))));
+            this._btnEdit.Location = new System.Drawing.Point(325, 12);
             this._btnEdit.Name = "_btnEdit";
-            this._btnEdit.Size = new System.Drawing.Size(50, 23);
+            this._btnEdit.Size = new System.Drawing.Size(60, 26);
             this._btnEdit.TabIndex = 6;
-            this._btnEdit.Text = "Edit";
-            this._btnEdit.UseVisualStyleBackColor = true;
+            this._btnEdit.Text = "Editar";
+            this._btnEdit.UseVisualStyleBackColor = false;
             this._btnEdit.Click += new System.EventHandler(this.BtnEdit_Click);
             // 
             // TaskCardControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Window;
-            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this._btnEdit);
             this.Controls.Add(this._btnDelete);
             this.Controls.Add(this._lblCountdown);
@@ -109,8 +126,9 @@ namespace Daniel_Rosas_Cruz.UI
             this.Controls.Add(this._lblUser);
             this.Controls.Add(this._lblCategory);
             this.Controls.Add(this._lblName);
+            this.Margin = new System.Windows.Forms.Padding(5);
             this.Name = "TaskCardControl";
-            this.Size = new System.Drawing.Size(400, 85);
+            this.Size = new System.Drawing.Size(398, 85);
             this.ResumeLayout(false);
             this.PerformLayout();
 
