@@ -78,6 +78,7 @@ namespace Daniel_Rosas_Cruz.UI
             {
                 _lblMessage.ForeColor = Color.FromArgb(229, 62, 62);
                 _lblMessage.Text = "Usuario o contraseña incorrectos.";
+                MessageBox.Show("Usuario o contraseña incorrectos. Por favor, verifica tus credenciales.", "Error de Acceso", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
