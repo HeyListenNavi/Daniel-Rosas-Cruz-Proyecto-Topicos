@@ -213,8 +213,18 @@ namespace Daniel_Rosas_Cruz
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "DELETE FROM Users WHERE Id = @Id";
-                    using (var command = new SqlCommand(query, connection))
+                    
+                    // Borrar tareas asociadas primero porque tienen NO ACTION en el UserId
+                    string queryTasks = "DELETE FROM Tasks WHERE UserId = @Id";
+                    using (var command = new SqlCommand(queryTasks, connection))
+                    {
+                        command.Parameters.AddWithValue("@Id", userId);
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Ahora sí podemos borrar el usuario
+                    string queryUser = "DELETE FROM Users WHERE Id = @Id";
+                    using (var command = new SqlCommand(queryUser, connection))
                     {
                         command.Parameters.AddWithValue("@Id", userId);
                         command.ExecuteNonQuery();
