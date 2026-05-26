@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ namespace Daniel_Rosas_Cruz
     internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        /// Punto de entrada principal para la aplicación.
         /// </summary>
         [STAThread]
         static void Main()
@@ -17,16 +17,15 @@ namespace Daniel_Rosas_Cruz
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            string connectionString = @"Server=localhost\SQLEXPRESS01;Database=TaskAppDB;Integrated Security=True;";
-            var db = new AccesoDatos(connectionString);
+            AccesoDatos db = new AccesoDatos();
 
             while (true)
             {
-                using (var login = new UI.LoginForm(db))
+                using (var login = new FormInicioSesion(db))
                 {
                     if (login.ShowDialog() == DialogResult.OK)
                     {
-                        using (var mainForm = new Form1(db, login.UsuarioAutenticado))
+                        using (var mainForm = new FormPrincipal(db, login.UsuarioAutenticado))
                         {
                             Application.Run(mainForm);
                         }

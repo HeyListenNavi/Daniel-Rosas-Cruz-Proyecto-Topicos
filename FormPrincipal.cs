@@ -6,11 +6,10 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Daniel_Rosas_Cruz;
-using Daniel_Rosas_Cruz.UI;
 
 namespace Daniel_Rosas_Cruz
 {
-    public partial class Form1 : Form
+    public partial class FormPrincipal : Form
     {
         private readonly AccesoDatos _db;
         private readonly DataRow _currentUser;
@@ -18,7 +17,7 @@ namespace Daniel_Rosas_Cruz
         private NotifyIcon _notifyIcon;
         private bool _isLoggingOut = false;
 
-        public Form1(AccesoDatos db, DataRow user)
+        public FormPrincipal(AccesoDatos db, DataRow user)
         {
             _db = db;
             _currentUser = user;
@@ -59,7 +58,7 @@ namespace Daniel_Rosas_Cruz
             _tmrExecution.Start(); // Iniciamos el timer del Form
         }
 
-        private void _tmrExecution_Tick(object sender, EventArgs e)
+        private void FormPrincipal_tmrExecution_Tick(object sender, EventArgs e)
         {
             DataTable pendientes = _db.ListarPendientes();
             foreach (DataRow fila in pendientes.Rows)
@@ -106,7 +105,7 @@ namespace Daniel_Rosas_Cruz
 
         private void AddTaskToUI(DataRow task)
         {
-            var card = new TaskCardControl(task);
+            var card = new ControlTarjetaTarea(task);
             card.OnDeleteRequested += Card_OnDeleteRequested;
             card.OnEditRequested += Card_OnEditRequested;
             _pnlTasks.Controls.Add(card);
@@ -114,7 +113,7 @@ namespace Daniel_Rosas_Cruz
 
         private void Card_OnEditRequested(DataRow task)
         {
-            using (var dialog = new EditTaskDialog(task, _db.ObtenerCategorias(Convert.ToInt32(_currentUser["Id"]))))
+            using (var dialog = new FormEditarTarea(task, _db.ObtenerCategorias(Convert.ToInt32(_currentUser["Id"]))))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -215,7 +214,7 @@ namespace Daniel_Rosas_Cruz
 
             foreach (Control control in _pnlTasks.Controls)
             {
-                if (control is TaskCardControl card && Convert.ToInt32(card.TaskRow["Id"]) == Convert.ToInt32(task["Id"]))
+                if (control is ControlTarjetaTarea card && Convert.ToInt32(card.TaskRow["Id"]) == Convert.ToInt32(task["Id"]))
                 {
                     card.UpdateTaskState(task);
                     
@@ -234,7 +233,7 @@ namespace Daniel_Rosas_Cruz
             }
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void FormPrincipal_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!_isLoggingOut && e.CloseReason == CloseReason.UserClosing)
             {
@@ -255,7 +254,7 @@ namespace Daniel_Rosas_Cruz
         private void BtnHistory_Click(object sender, EventArgs e)
         {
             DataTable hist = _db.ObtenerHistorial(Convert.ToInt32(_currentUser["Id"]));
-            using (var dialog = new HistoryDialog(hist))
+            using (var dialog = new FormHistorial(hist))
             {
                 dialog.ShowDialog();
             }
@@ -263,7 +262,7 @@ namespace Daniel_Rosas_Cruz
 
         private void BtnManageCats_Click(object sender, EventArgs e)
         {
-            using (var dialog = new ManageCategoriesDialog(_db, _currentUser))
+            using (var dialog = new FormGestionarCategorias(_db, _currentUser))
             {
                 dialog.ShowDialog();
                 LoadCategories();
@@ -272,7 +271,7 @@ namespace Daniel_Rosas_Cruz
 
         private void BtnProfile_Click(object sender, EventArgs e)
         {
-            using (var dialog = new ProfileDialog(_db, _currentUser))
+            using (var dialog = new FormPerfil(_db, _currentUser))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -296,7 +295,7 @@ namespace Daniel_Rosas_Cruz
 
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FormPrincipal_Load(object sender, EventArgs e)
         {
 
         }

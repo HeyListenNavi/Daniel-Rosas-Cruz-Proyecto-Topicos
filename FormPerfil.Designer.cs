@@ -1,8 +1,8 @@
 using System.Drawing;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    partial class ProfileDialog
+    partial class FormPerfil
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -119,7 +119,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._btnCancel.UseVisualStyleBackColor = false;
             this._btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
-            // ProfileDialog
+            // FormPerfil
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -136,7 +136,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ProfileDialog";
+            this.Name = "FormPerfil";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Mi Perfil";
             this.ResumeLayout(false);

@@ -3,14 +3,14 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    public partial class LoginForm : Form
+    public partial class FormInicioSesion : Form
     {
         private readonly AccesoDatos _db;
         public DataRow UsuarioAutenticado { get; private set; }
 
-        public LoginForm(AccesoDatos db)
+        public FormInicioSesion(AccesoDatos db)
         {
             _db = db;
             InitializeComponent();

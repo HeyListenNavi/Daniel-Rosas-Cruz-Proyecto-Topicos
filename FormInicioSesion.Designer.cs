@@ -1,8 +1,8 @@
 using System.Drawing;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    partial class LoginForm
+    partial class FormInicioSesion
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -159,7 +159,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "LoginForm";
+            this.Name = "FormInicioSesion";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Acceso";
             this.ResumeLayout(false);

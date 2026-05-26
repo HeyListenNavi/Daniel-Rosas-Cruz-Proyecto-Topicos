@@ -1,8 +1,8 @@
 using System.Drawing;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    partial class ManageCategoriesDialog
+    partial class FormGestionarCategorias
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -107,7 +107,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._btnClose.UseVisualStyleBackColor = false;
             this._btnClose.Click += new System.EventHandler(this.BtnClose_Click);
             // 
-            // ManageCategoriesDialog
+            // FormGestionarCategorias
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -122,7 +122,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ManageCategoriesDialog";
+            this.Name = "FormGestionarCategorias";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Mis Categorías";
             this.ResumeLayout(false);

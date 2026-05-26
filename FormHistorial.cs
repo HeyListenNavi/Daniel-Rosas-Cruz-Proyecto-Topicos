@@ -3,11 +3,11 @@ using System.Data;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    public partial class HistoryDialog : Form
+    public partial class FormHistorial : Form
     {
-        public HistoryDialog(DataTable history)
+        public FormHistorial(DataTable history)
         {
             InitializeComponent();
             _dgvHistory.DataSource = history;

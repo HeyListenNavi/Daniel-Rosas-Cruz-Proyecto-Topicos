@@ -1,8 +1,8 @@
 using System.Drawing;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    partial class TaskCardControl
+    partial class ControlTarjetaTarea
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -125,7 +125,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._picIcon.TabIndex = 7;
             this._picIcon.TabStop = false;
             // 
-            // TaskCardControl
+            // ControlTarjetaTarea
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -139,7 +139,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.Controls.Add(this._lblCategory);
             this.Controls.Add(this._lblName);
             this.Margin = new System.Windows.Forms.Padding(5);
-            this.Name = "TaskCardControl";
+            this.Name = "ControlTarjetaTarea";
             this.Size = new System.Drawing.Size(398, 85);
             ((System.ComponentModel.ISupportInitialize)(this._picIcon)).EndInit();
             this.ResumeLayout(false);

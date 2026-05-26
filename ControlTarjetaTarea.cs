@@ -4,9 +4,9 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    public partial class TaskCardControl : UserControl
+    public partial class ControlTarjetaTarea : UserControl
     {
         private DataRow _taskRow;
         private System.Windows.Forms.Timer _timer;
@@ -16,7 +16,7 @@ namespace Daniel_Rosas_Cruz.UI
 
         public DataRow TaskRow => _taskRow;
 
-        public TaskCardControl(DataRow task)
+        public ControlTarjetaTarea(DataRow task)
         {
             _taskRow = task;
             InitializeComponent();

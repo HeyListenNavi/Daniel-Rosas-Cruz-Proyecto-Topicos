@@ -53,53 +53,53 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="FormPrincipal.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="FormPrincipal.Designer.cs">
+      <DependentUpon>FormPrincipal.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="TaskCore.cs" />
-    <Compile Include="UI\TaskCardControl.cs">
+    <Compile Include="ControlTarjetaTarea.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\TaskCardControl.Designer.cs">
-      <DependentUpon>TaskCardControl.cs</DependentUpon>
+    <Compile Include="ControlTarjetaTarea.Designer.cs">
+      <DependentUpon>ControlTarjetaTarea.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\EditTaskDialog.cs">
+    <Compile Include="FormEditarTarea.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\EditTaskDialog.Designer.cs">
-      <DependentUpon>EditTaskDialog.cs</DependentUpon>
+    <Compile Include="FormEditarTarea.Designer.cs">
+      <DependentUpon>FormEditarTarea.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\HistoryDialog.cs">
+    <Compile Include="FormHistorial.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\HistoryDialog.Designer.cs">
-      <DependentUpon>HistoryDialog.cs</DependentUpon>
+    <Compile Include="FormHistorial.Designer.cs">
+      <DependentUpon>FormHistorial.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\LoginForm.cs">
+    <Compile Include="FormInicioSesion.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\LoginForm.Designer.cs">
-      <DependentUpon>LoginForm.cs</DependentUpon>
+    <Compile Include="FormInicioSesion.Designer.cs">
+      <DependentUpon>FormInicioSesion.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\ManageCategoriesDialog.cs">
+    <Compile Include="FormGestionarCategorias.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\ManageCategoriesDialog.Designer.cs">
-      <DependentUpon>ManageCategoriesDialog.cs</DependentUpon>
+    <Compile Include="FormGestionarCategorias.Designer.cs">
+      <DependentUpon>FormGestionarCategorias.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\ProfileDialog.cs">
+    <Compile Include="FormPerfil.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\ProfileDialog.Designer.cs">
-      <DependentUpon>ProfileDialog.cs</DependentUpon>
+    <Compile Include="FormPerfil.Designer.cs">
+      <DependentUpon>FormPerfil.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="FormPrincipal.resx">
+      <DependentUpon>FormPrincipal.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -111,11 +111,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="UI\LoginForm.resx">
-      <DependentUpon>LoginForm.cs</DependentUpon>
+    <EmbeddedResource Include="FormInicioSesion.resx">
+      <DependentUpon>FormInicioSesion.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\ManageCategoriesDialog.resx">
-      <DependentUpon>ManageCategoriesDialog.cs</DependentUpon>
+    <EmbeddedResource Include="FormGestionarCategorias.resx">
+      <DependentUpon>FormGestionarCategorias.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

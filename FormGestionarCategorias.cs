@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    public partial class ManageCategoriesDialog : Form
+    public partial class FormGestionarCategorias : Form
     {
         private readonly AccesoDatos _db;
         private readonly DataRow _currentUser;
 
-        public ManageCategoriesDialog(AccesoDatos db, DataRow user)
+        public FormGestionarCategorias(AccesoDatos db, DataRow user)
         {
             _db = db;
             _currentUser = user;

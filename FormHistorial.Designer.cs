@@ -1,8 +1,8 @@
 using System.Drawing;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    partial class HistoryDialog
+    partial class FormHistorial
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -54,7 +54,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._btnClose.UseVisualStyleBackColor = false;
             this._btnClose.Click += new System.EventHandler(this.BtnClose_Click);
             // 
-            // HistoryDialog
+            // FormHistorial
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -65,7 +65,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "HistoryDialog";
+            this.Name = "FormHistorial";
             this.Padding = new System.Windows.Forms.Padding(10);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Historial de Ejecuciones";

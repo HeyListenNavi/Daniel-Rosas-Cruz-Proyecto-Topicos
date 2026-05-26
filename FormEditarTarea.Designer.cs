@@ -1,8 +1,8 @@
 using System.Drawing;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    partial class EditTaskDialog
+    partial class FormEditarTarea
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -41,6 +41,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.lblName.Location = new System.Drawing.Point(20, 20);
             this.lblName.Name = "lblName";
             this.lblName.Size = new System.Drawing.Size(110, 15);
+            this.lblName.TabIndex = 0;
             this.lblName.Text = "Nombre de la tarea:";
             // 
             // _txtName
@@ -59,6 +60,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.lblFile.Location = new System.Drawing.Point(20, 70);
             this.lblFile.Name = "lblFile";
             this.lblFile.Size = new System.Drawing.Size(103, 15);
+            this.lblFile.TabIndex = 2;
             this.lblFile.Text = "Archivo a ejecutar:";
             // 
             // _txtFilePath
@@ -88,6 +90,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.lblDate.Location = new System.Drawing.Point(20, 120);
             this.lblDate.Name = "lblDate";
             this.lblDate.Size = new System.Drawing.Size(145, 15);
+            this.lblDate.TabIndex = 5;
             this.lblDate.Text = "Fecha y hora programada:";
             // 
             // _dtpDate
@@ -117,6 +120,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.lblCategory.Location = new System.Drawing.Point(20, 170);
             this.lblCategory.Name = "lblCategory";
             this.lblCategory.Size = new System.Drawing.Size(61, 15);
+            this.lblCategory.TabIndex = 8;
             this.lblCategory.Text = "Categoría:";
             // 
             // _cmbCategory
@@ -136,6 +140,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.lblUser.Location = new System.Drawing.Point(200, 170);
             this.lblUser.Name = "lblUser";
             this.lblUser.Size = new System.Drawing.Size(50, 15);
+            this.lblUser.TabIndex = 10;
             this.lblUser.Text = "Usuario:";
             // 
             // _cmbUser
@@ -177,7 +182,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._btnCancel.UseVisualStyleBackColor = false;
             this._btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
-            // EditTaskDialog
+            // FormEditarTarea
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -200,7 +205,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "EditTaskDialog";
+            this.Name = "FormEditarTarea";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Editar Tarea";
             this.ResumeLayout(false);

@@ -2,7 +2,7 @@ using System.Drawing;
 
 namespace Daniel_Rosas_Cruz
 {
-    partial class Form1
+    partial class FormPrincipal
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -22,7 +22,7 @@ namespace Daniel_Rosas_Cruz
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormPrincipal));
             this._tmrExecution = new System.Windows.Forms.Timer(this.components);
             this._pnlTasks = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlInput = new System.Windows.Forms.Panel();
@@ -70,7 +70,7 @@ namespace Daniel_Rosas_Cruz
             // _tmrExecution
             // 
             this._tmrExecution.Interval = 10000;
-            this._tmrExecution.Tick += new System.EventHandler(this._tmrExecution_Tick);
+            this._tmrExecution.Tick += new System.EventHandler(this.FormPrincipal_tmrExecution_Tick);
             // 
             // _pnlTasks
             // 
@@ -509,7 +509,7 @@ namespace Daniel_Rosas_Cruz
             this.lblQuick.TabIndex = 0;
             this.lblQuick.Text = "Acciones rápidas:";
             // 
-            // Form1
+            // FormPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -520,11 +520,11 @@ namespace Daniel_Rosas_Cruz
             this.Controls.Add(this.pnlInput);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(800, 600);
-            this.Name = "Form1";
+            this.Name = "FormPrincipal";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gestor de Tareas";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormPrincipal_FormClosing);
+            this.Load += new System.EventHandler(this.FormPrincipal_Load);
             this.pnlInput.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();

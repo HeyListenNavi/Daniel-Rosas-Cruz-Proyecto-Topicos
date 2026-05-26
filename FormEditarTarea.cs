@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    public partial class EditTaskDialog : Form
+    public partial class FormEditarTarea : Form
     {
         private DataRow _originalRow;
         public string NuevoNombre { get; private set; }
@@ -14,7 +14,7 @@ namespace Daniel_Rosas_Cruz.UI
         public DateTime NuevaFecha { get; private set; }
         public int? NuevaCat { get; private set; }
 
-        public EditTaskDialog(DataRow task, DataTable categories)
+        public FormEditarTarea(DataRow task, DataTable categories)
         {
             _originalRow = task;
             InitializeComponent();

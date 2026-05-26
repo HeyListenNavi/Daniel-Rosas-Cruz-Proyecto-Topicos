@@ -2,16 +2,16 @@ using System;
 using System.Data;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz.UI
+namespace Daniel_Rosas_Cruz
 {
-    public partial class ProfileDialog : Form
+    public partial class FormPerfil : Form
     {
         private readonly AccesoDatos _db;
         private readonly DataRow _currentUser;
 
         public bool AccountDeleted { get; private set; } = false;
 
-        public ProfileDialog(AccesoDatos db, DataRow user)
+        public FormPerfil(AccesoDatos db, DataRow user)
         {
             _db = db;
             _currentUser = user;
