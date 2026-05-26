@@ -29,6 +29,8 @@ namespace Daniel_Rosas_Cruz.UI
             this._lblCountdown = new System.Windows.Forms.Label();
             this._btnDelete = new System.Windows.Forms.Button();
             this._btnEdit = new System.Windows.Forms.Button();
+            this._picIcon = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this._picIcon)).BeginInit();
             this.SuspendLayout();
             // 
             // _lblName
@@ -36,7 +38,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._lblName.AutoSize = true;
             this._lblName.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this._lblName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(55)))), ((int)(((byte)(72)))));
-            this._lblName.Location = new System.Drawing.Point(12, 10);
+            this._lblName.Location = new System.Drawing.Point(50, 10);
             this._lblName.Name = "_lblName";
             this._lblName.Size = new System.Drawing.Size(67, 20);
             this._lblName.TabIndex = 0;
@@ -47,7 +49,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._lblCategory.AutoSize = true;
             this._lblCategory.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this._lblCategory.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(113)))), ((int)(((byte)(128)))), ((int)(((byte)(150)))));
-            this._lblCategory.Location = new System.Drawing.Point(12, 32);
+            this._lblCategory.Location = new System.Drawing.Point(50, 32);
             this._lblCategory.Name = "_lblCategory";
             this._lblCategory.Size = new System.Drawing.Size(58, 15);
             this._lblCategory.TabIndex = 1;
@@ -58,7 +60,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._lblUser.AutoSize = true;
             this._lblUser.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this._lblUser.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(113)))), ((int)(((byte)(128)))), ((int)(((byte)(150)))));
-            this._lblUser.Location = new System.Drawing.Point(140, 32);
+            this._lblUser.Location = new System.Drawing.Point(180, 32);
             this._lblUser.Name = "_lblUser";
             this._lblUser.Size = new System.Drawing.Size(47, 15);
             this._lblUser.TabIndex = 2;
@@ -68,7 +70,7 @@ namespace Daniel_Rosas_Cruz.UI
             // 
             this._lblStatus.AutoSize = true;
             this._lblStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this._lblStatus.Location = new System.Drawing.Point(12, 55);
+            this._lblStatus.Location = new System.Drawing.Point(50, 55);
             this._lblStatus.Name = "_lblStatus";
             this._lblStatus.Size = new System.Drawing.Size(42, 15);
             this._lblStatus.TabIndex = 3;
@@ -79,7 +81,7 @@ namespace Daniel_Rosas_Cruz.UI
             this._lblCountdown.AutoSize = true;
             this._lblCountdown.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this._lblCountdown.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(74)))), ((int)(((byte)(85)))), ((int)(((byte)(104)))));
-            this._lblCountdown.Location = new System.Drawing.Point(140, 55);
+            this._lblCountdown.Location = new System.Drawing.Point(180, 55);
             this._lblCountdown.Name = "_lblCountdown";
             this._lblCountdown.Size = new System.Drawing.Size(0, 15);
             this._lblCountdown.TabIndex = 4;
@@ -114,11 +116,21 @@ namespace Daniel_Rosas_Cruz.UI
             this._btnEdit.UseVisualStyleBackColor = false;
             this._btnEdit.Click += new System.EventHandler(this.BtnEdit_Click);
             // 
+            // _picIcon
+            // 
+            this._picIcon.Location = new System.Drawing.Point(10, 15);
+            this._picIcon.Name = "_picIcon";
+            this._picIcon.Size = new System.Drawing.Size(32, 32);
+            this._picIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this._picIcon.TabIndex = 7;
+            this._picIcon.TabStop = false;
+            // 
             // TaskCardControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this._picIcon);
             this.Controls.Add(this._btnEdit);
             this.Controls.Add(this._btnDelete);
             this.Controls.Add(this._lblCountdown);
@@ -129,6 +141,7 @@ namespace Daniel_Rosas_Cruz.UI
             this.Margin = new System.Windows.Forms.Padding(5);
             this.Name = "TaskCardControl";
             this.Size = new System.Drawing.Size(398, 85);
+            ((System.ComponentModel.ISupportInitialize)(this._picIcon)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -141,5 +154,6 @@ namespace Daniel_Rosas_Cruz.UI
         private System.Windows.Forms.Label _lblCountdown;
         private System.Windows.Forms.Button _btnDelete;
         private System.Windows.Forms.Button _btnEdit;
+        private System.Windows.Forms.PictureBox _picIcon;
     }
 }

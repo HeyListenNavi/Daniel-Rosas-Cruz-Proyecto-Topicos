@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Daniel_Rosas_Cruz.UI
@@ -76,7 +77,41 @@ namespace Daniel_Rosas_Cruz.UI
             _lblStatus.ForeColor = GetStatusColor(status);
             _btnEdit.Visible = (status == 0);
 
+            LoadTaskIcon();
+
             Timer_Tick(null, null);
+        }
+
+        private void LoadTaskIcon()
+        {
+            try
+            {
+                string path = _taskRow["FilePath"].ToString();
+                if (!string.IsNullOrEmpty(path))
+                {
+                    // Intentar extraer el icono asociado
+                    // Resolvemos la ruta si es un ejecutable común
+                    string fullPath = path;
+                    if (path.Equals("notepad.exe", StringComparison.OrdinalIgnoreCase)) fullPath = Path.Combine(Environment.SystemDirectory, "notepad.exe");
+                    else if (path.Equals("calc.exe", StringComparison.OrdinalIgnoreCase)) fullPath = Path.Combine(Environment.SystemDirectory, "calc.exe");
+
+                    if (File.Exists(fullPath))
+                    {
+                        using (Icon icon = Icon.ExtractAssociatedIcon(fullPath))
+                        {
+                            if (icon != null) _picIcon.Image = icon.ToBitmap();
+                        }
+                    }
+                    else
+                    {
+                        _picIcon.Image = SystemIcons.Application.ToBitmap();
+                    }
+                }
+            }
+            catch
+            {
+                _picIcon.Image = SystemIcons.Application.ToBitmap();
+            }
         }
 
         private Color GetStatusColor(int status)
