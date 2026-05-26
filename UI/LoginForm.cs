@@ -41,6 +41,9 @@ namespace Daniel_Rosas_Cruz.UI
                 _btnRegister.Top = 170;
                 _lblMessage.Top = 210;
             }
+
+            _txtUser.Focus();
+            _txtUser.SelectAll();
         }
 
         private void BtnLogin_Click(object sender, EventArgs e)
