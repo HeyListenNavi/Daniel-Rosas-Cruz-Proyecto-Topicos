@@ -4,7 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz
+namespace Proyecto_Topicos
 {
     public partial class ControlTarjetaTarea : UserControl
     {

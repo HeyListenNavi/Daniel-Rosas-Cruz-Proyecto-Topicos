@@ -3,7 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz
+namespace Proyecto_Topicos
 {
     public partial class FormInicioSesion : Form
     {

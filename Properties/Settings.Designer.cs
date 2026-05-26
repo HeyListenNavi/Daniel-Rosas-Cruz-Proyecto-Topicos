@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Daniel_Rosas_Cruz.Properties
+namespace Proyecto_Topicos.Properties
 {
 
 

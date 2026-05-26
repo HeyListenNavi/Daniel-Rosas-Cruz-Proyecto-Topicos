@@ -5,9 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Daniel_Rosas_Cruz;
 
-namespace Daniel_Rosas_Cruz
+namespace Proyecto_Topicos
 {
     public partial class FormPrincipal : Form
     {

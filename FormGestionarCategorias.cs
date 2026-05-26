@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz
+namespace Proyecto_Topicos
 {
     public partial class FormGestionarCategorias : Form
     {

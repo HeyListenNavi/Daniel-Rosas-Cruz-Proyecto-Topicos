@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace Daniel_Rosas_Cruz
+namespace Proyecto_Topicos
 {
     // Clase de Base de datos
 

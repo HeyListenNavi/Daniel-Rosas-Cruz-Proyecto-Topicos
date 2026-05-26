@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Daniel_Rosas_Cruz
+namespace Proyecto_Topicos
 {
     internal static class Program
     {
@@ -17,7 +17,7 @@ namespace Daniel_Rosas_Cruz
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            AccesoDatos db = new AccesoDatos();
+            AccesoDatos db = new AccesoDatos(@"Data Source=.\SQLEXPRESS;Initial Catalog=GestorTareasDB;Integrated Security=True");
 
             while (true)
             {

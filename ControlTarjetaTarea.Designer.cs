@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace Daniel_Rosas_Cruz
+namespace Proyecto_Topicos
 {
     partial class ControlTarjetaTarea
     {
