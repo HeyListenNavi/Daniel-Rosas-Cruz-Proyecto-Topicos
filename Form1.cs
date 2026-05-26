@@ -3,6 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using Daniel_Rosas_Cruz;
 using Daniel_Rosas_Cruz.UI;
@@ -82,12 +83,25 @@ namespace Daniel_Rosas_Cruz
 
         private void LoadTasks()
         {
+            // Mostramos un indicador visual simple o simplemente limpiamos
             _pnlTasks.Controls.Clear();
-            DataTable tasks = _db.ListarTareas(Convert.ToInt32(_currentUser["Id"]));
-            foreach (DataRow fila in tasks.Rows)
-            {
-                AddTaskToUI(fila);
-            }
+            
+            int userId = Convert.ToInt32(_currentUser["Id"]);
+
+            // Usamos un hilo de fondo (Thread explícito) para la consulta a BD
+            Thread thread = new Thread(() => {
+                DataTable tasks = _db.ListarTareas(userId);
+                
+                // Volvemos al hilo de UI para actualizar los controles
+                this.Invoke(new Action(() => {
+                    foreach (DataRow fila in tasks.Rows)
+                    {
+                        AddTaskToUI(fila);
+                    }
+                }));
+            });
+            thread.IsBackground = true; // El hilo termina si la app se cierra
+            thread.Start();
         }
 
         private void AddTaskToUI(DataRow task)
